@@ -1,5 +1,3 @@
-from functools import reduce
-from multiprocessing.dummy import current_process
 from ship import Ship
 from shot import Shot
 
@@ -7,8 +5,16 @@ from shot import Shot
 class Grid:
 
     def __init__(self):
-        self.shots: list[Shot] = []
-        self.ships: list[Ship] = []
+        self.ships = []
+        self.shots = []
+
+    def set_ships(self, ships):
+        self.ships = ships
+        return self
+
+    def set_shots(self, shots):
+        self.shots = shots
+        return self
 
     def get_all_ship_coordinates(self):
         occupied = []
@@ -37,12 +43,18 @@ class Grid:
             self.ships.append(ship)
             return True
 
-    def mark_shot(self, shot: Shot):
+    def is_shot_already_taken(self, shot: Shot):
         shots_taken = self.get_all_shots_taken()
         already_taken = shot.coordinates in shots_taken
+        return already_taken
+
+    def mark_shot(self, shot: Shot):
+        already_taken = self.is_shot_already_taken(shot)
         if not already_taken:
             self.shots.append(shot)
             occupied = self.get_all_ship_coordinates()
-            hits = list(filter(lambda c: c == shot.coordinates, occupied))
-            shot.hit = len(hits) > 0
+            for c in occupied:
+                if c == shot.coordinates:
+                    c.hit = True
+                    shot.hit = True
             return True

@@ -21,4 +21,9 @@ class Ship:
     def set_location(self, location: list[Coordinates]) -> bool:
         if len(location) == self.size:
             self.location = location
-            return True
+            return self
+
+    def is_sunk(self):
+        is_damaged = list(filter(lambda coordinates: coordinates.hit, self.location))
+        is_sunk = len(is_damaged) == len(self.location)
+        return is_sunk

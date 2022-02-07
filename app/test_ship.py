@@ -15,6 +15,8 @@ class TestShot(unittest.TestCase):
         self.assertIsInstance(self.ship.size, int)
         self.assertEqual(self.ship.set_location.__name__, 'set_location') 
         self.assertTrue(callable(self.ship.set_location))
+        self.assertEqual(self.ship.is_sunk.__name__, 'is_sunk') 
+        self.assertTrue(callable(self.ship.is_sunk))
 
     def test_can_set_ship_location(self):
         location = [Coordinates({'x': 'E', 'y': 5}), Coordinates({'x': 'E', 'y': 6})]
@@ -26,6 +28,15 @@ class TestShot(unittest.TestCase):
         location = [Coordinates({'x': 'E', 'y': 5}), Coordinates({'x': 'E', 'y': 6}), Coordinates({'x': 'E', 'y': 7})]
         location_set = self.ship.set_location(location)
         self.assertFalse(location_set)
+
+    def test_ship_can_tell_whether_it_is_sunk(self):
+        location = [Coordinates({'x': 'E', 'y': 5}), Coordinates({'x': 'E', 'y': 6})]
+        self.ship.set_location(location)
+        self.ship.location[0].hit = True
+        self.ship.location[1].hit = True
+        is_sunk = self.ship.is_sunk()
+        self.assertTrue(is_sunk)
+
 
 
 if __name__ == '__main__':

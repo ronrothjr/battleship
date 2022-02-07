@@ -8,6 +8,7 @@ class TestCoordinates(unittest.TestCase):
         self.assertIsInstance(self.coordinates, Coordinates)
         self.assertIsInstance(self.coordinates.x, str)
         self.assertIsInstance(self.coordinates.y, int)
+        self.assertIsInstance(self.coordinates.hit, bool)
 
 
 if __name__ == '__main__':
