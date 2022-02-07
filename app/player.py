@@ -8,7 +8,7 @@ class Player:
 
     def __init__(self, grid: Grid=None, name: str='Bob', is_ai: bool=False) -> None:
         self.grid = grid if grid else Grid()
-        self.name = name
+        self.name = 'AI' if is_ai else name
         self.is_ai = is_ai
 
     def take_a_shot(self, shot: Shot=None):

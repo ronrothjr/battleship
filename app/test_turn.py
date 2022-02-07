@@ -10,7 +10,7 @@ class TestTurn(unittest.TestCase):
     def test_can_instantiate_a_turn(self):
         grid = Grid()
         player = Player(grid)
-        coordinates = Coordinates({'x': 'E', 'y': 5})
+        coordinates = Coordinates({'x': 'E', 'y': '5'})
         shot = Shot(coordinates)
         self.turn = Turn(player, shot)
         self.assertIsInstance(self.turn, Turn)

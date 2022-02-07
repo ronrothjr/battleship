@@ -1,6 +1,6 @@
 class Coordinates:
     x: str
-    y: int
+    y: str
     hit: bool
     model: str
 

@@ -10,6 +10,8 @@ class TestAI(unittest.TestCase):
 
     def test_can_instantiate_an_ai(self):
         self.assertIsInstance(self.ai, BattleshipAI)
+        self.assertEqual(self.ai.place_ship.__name__, 'place_ship') 
+        self.assertTrue(callable(self.ai.place_ship))
         self.assertEqual(self.ai.get_shot.__name__, 'get_shot') 
         self.assertTrue(callable(self.ai.get_shot))
 
@@ -17,7 +19,7 @@ class TestAI(unittest.TestCase):
         x_y = self.ai.get_shot(Player())
         self.assertIsInstance(x_y, dict)
         self.assertIsInstance(x_y['x'], str)
-        self.assertIsInstance(x_y['y'], int)
+        self.assertIsInstance(x_y['y'], str)
 
 
 if __name__ == '__main__':

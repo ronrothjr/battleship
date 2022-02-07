@@ -5,6 +5,24 @@ from shot import Shot
 
 class Grid:
 
+    x = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
+    y = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
+
+    @staticmethod
+    def get_location_coordinates(model, x_y, orientation):
+        coordinates = []
+        size = Ship.models()[model]
+        x_index = Grid.x.index(x_y['x'])
+        y_index = Grid.y.index(x_y['y'])        
+        for l in range(0, size):
+            x_coordinate_index = x_index + (l if orientation == 'v' else 0)
+            y_coordinate_index = y_index + (l if orientation == 'h' else 0)
+            if x_coordinate_index > 9 or y_coordinate_index > 9:
+                return
+            x_y_dict = {'x': Grid.x[x_coordinate_index],'y': Grid.y[y_coordinate_index]}
+            coordinates.append(Coordinates(x_y_dict))
+        return coordinates
+
     def __init__(self):
         self.ships = []
         self.shots = []

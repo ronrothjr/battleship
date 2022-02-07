@@ -1,4 +1,4 @@
-import unittest
+import io, unittest
 from unittest import mock
 from unittest.mock import patch
 from battleship_ui import BattleshipUI
@@ -12,14 +12,48 @@ class TestBattleshipUI(unittest.TestCase):
 
     def test_can_instantiate_a_battleship_ui(self):
         self.assertIsInstance(self.battleship_ui, BattleshipUI)
+        self.assertEqual(self.battleship_ui.get_name.__name__, 'get_name') 
+        self.assertTrue(callable(self.battleship_ui.get_name))
+        self.assertEqual(self.battleship_ui.warn.__name__, 'warn') 
+        self.assertTrue(callable(self.battleship_ui.warn))
+        self.assertEqual(self.battleship_ui.place_ship.__name__, 'place_ship') 
+        self.assertTrue(callable(self.battleship_ui.place_ship))
         self.assertEqual(self.battleship_ui.get_shot.__name__, 'get_shot') 
         self.assertTrue(callable(self.battleship_ui.get_shot))
+        self.assertEqual(self.battleship_ui.announce_winner.__name__, 'announce_winner') 
+        self.assertTrue(callable(self.battleship_ui.announce_winner))
+
+    def test_ui_can_get_player_name(self):
+        fake_input = mock.Mock(side_effect=['Ahab'])
+        with patch('builtins.input', fake_input):
+            name = self.battleship_ui.get_name()
+            self.assertEqual(name, 'Ahab')
+
+    @patch('sys.stdout', new_callable=io.StringIO)
+    def test_ui_can_warn_player_of_rules_violation(self, mock_stdout):
+        self.battleship_ui.warn(Player(), 'Don\'t piss in the wind!')
+        output = mock_stdout.getvalue()
+        self.assertEqual(output, 'Bob broke a rule: Don\'t piss in the wind!\n')
+
+    def test_ui_can_get_ship_placement_coordinates_and_orientation(self):
+        fake_input = mock.Mock(side_effect=['E','5','h'])
+        with patch('builtins.input', fake_input):
+            x_y_dict, orientation = self.battleship_ui.place_ship('Destroyer', Player())
+            self.assertEqual(x_y_dict, {'x': 'E', 'y': '5'})
+            self.assertEqual(orientation, 'h')
 
     def test_ui_can_get_a_shot_from_a_player(self):
         fake_input = mock.Mock(side_effect=['E','5'])
         with patch('builtins.input', fake_input):
-            coordinates = self.battleship_ui.get_shot(Player())
-            self.assertEqual(coordinates, {'x': 'E', 'y': 5})
+            x_y_dict = self.battleship_ui.get_shot(Player())
+            self.assertEqual(x_y_dict, {'x': 'E', 'y': '5'})
+
+    @patch('sys.stdout', new_callable=io.StringIO)
+    def test_ui_can_announce_winner(self, mock_stdout):
+        self.battleship_ui.announce_winner(Player())
+        output = mock_stdout.getvalue()
+        self.assertEqual(output, 'Bob is victorious!\n')
+
 
 
 if __name__ == '__main__':

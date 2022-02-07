@@ -19,18 +19,18 @@ class TestShot(unittest.TestCase):
         self.assertTrue(callable(self.ship.is_sunk))
 
     def test_can_set_ship_location(self):
-        location = [Coordinates({'x': 'E', 'y': 5}), Coordinates({'x': 'E', 'y': 6})]
+        location = [Coordinates({'x': 'E', 'y': '5'}), Coordinates({'x': 'E', 'y': '6'})]
         location_set = self.ship.set_location(location)
         self.assertTrue(location_set)
         self.assertTrue(self.ship.location, location)
 
     def test_cannot_set_ship_location_that_do_not_match_size(self):
-        location = [Coordinates({'x': 'E', 'y': 5}), Coordinates({'x': 'E', 'y': 6}), Coordinates({'x': 'E', 'y': 7})]
+        location = [Coordinates({'x': 'E', 'y': '5'}), Coordinates({'x': 'E', 'y': '6'}), Coordinates({'x': 'E', 'y': '7'})]
         location_set = self.ship.set_location(location)
         self.assertFalse(location_set)
 
     def test_ship_can_tell_whether_it_is_sunk(self):
-        location = [Coordinates({'x': 'E', 'y': 5}), Coordinates({'x': 'E', 'y': 6})]
+        location = [Coordinates({'x': 'E', 'y': '5'}), Coordinates({'x': 'E', 'y': '6'})]
         self.ship.set_location(location)
         self.ship.location[0].hit = True
         self.ship.location[1].hit = True
