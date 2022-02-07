@@ -17,6 +17,8 @@ class TestPlayer(unittest.TestCase):
         self.assertIsInstance(player.grid, Grid)
         self.assertEqual(player.take_a_shot.__name__, 'take_a_shot') 
         self.assertTrue(callable(player.take_a_shot))
+        self.assertEqual(player.is_sunk.__name__, 'is_sunk') 
+        self.assertTrue(callable(player.is_sunk))
         self.assertEqual(player.is_defeated.__name__, 'is_defeated') 
         self.assertTrue(callable(player.is_defeated))
 

@@ -13,8 +13,10 @@ class Player:
 
     def take_a_shot(self, shot: Shot=None):
         marked = self.grid.mark_shot(shot)
-        if marked:
-            return shot
+        return shot
+
+    def is_sunk(self, model: str):
+        return self.grid.get_ship(model).is_sunk()
 
     def is_defeated(self):
         is_ship_sunk = list(filter(lambda ship: ship.is_sunk(), self.grid.ships))

@@ -1,3 +1,4 @@
+import time
 from coordinates import Coordinates
 from battleship_ai import BattleshipAI
 from battleship_ui import BattleshipUI
@@ -11,6 +12,7 @@ from turn import Turn
 class Battleship:
 
     def __init__(self) -> None:
+        self.watch = False
         self.ai = BattleshipAI()
         self.ui = BattleshipUI()
         self.players = []
@@ -24,7 +26,8 @@ class Battleship:
         self.turns = turns
         return self
 
-    def play_a_game(self, ai_v_ai=False):
+    def play_a_game(self, ai_v_ai=False, watch=False):
+        self.watch = watch
         players = [True, True] if ai_v_ai else [False, True]
         for is_ai in players:
             player = Player(is_ai=is_ai)
@@ -57,7 +60,10 @@ class Battleship:
         while not is_battle_decided:
             self.play_a_round()
             is_battle_decided = list(filter(lambda player: player.is_defeated(), self.players))
-        self.ui.announce_winner(self.players[0] if self.players[1].is_defeated() else self.players[1])
+        winner = self.players[0] if self.players[1].is_defeated() else self.players[1]
+        loser = self.players[1] if self.players[1].is_defeated() else self.players[0]
+        self.ui.display_grids(winner, loser)
+        self.ui.announce_winner(winner)
 
     def play_a_round(self):
         p1 = self.players[0]
@@ -67,6 +73,9 @@ class Battleship:
             self.take_a_turn(p2, p1)
 
     def take_a_turn(self, player: Player, opponent: Player):
+        self.ui.display_grids(player, opponent)
+        if (self.watch):
+            time.sleep(2)
         shot = None
         shot_is_unverified = True
         while shot_is_unverified:
@@ -74,7 +83,11 @@ class Battleship:
             coordinates = Coordinates(x_y)
             shot = Shot(coordinates)
             shot_is_unverified = opponent.grid.is_shot_already_taken(shot)
-        opponent.take_a_shot(shot)
+        shot = opponent.take_a_shot(shot)
+        if shot.hit:
+            self.ui.announce_hit(player, shot)
+            if player.is_sunk(shot.model):
+                self.ui.announce_sunk(player, shot)
         turn = Turn(player, shot)
         self.turns.append(turn)
         return turn

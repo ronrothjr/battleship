@@ -31,6 +31,7 @@ class TestBattleship(unittest.TestCase):
 
     def test_can_instantiate_a_battleship(self):
         self.assertIsInstance(self.battleship, Battleship)
+        self.assertIsInstance(self.battleship.watch, bool)
         self.assertIsInstance(self.battleship.ui, BattleshipUI)
         self.assertIsInstance(self.battleship.ai, BattleshipAI)
         self.assertIsInstance(self.battleship.players, list)
@@ -54,7 +55,7 @@ class TestBattleship(unittest.TestCase):
 
     @patch('sys.stdout', new_callable=io.StringIO)
     def test_can_place_ships_and__warn_player_of_rule_violations(self, mock_stdout):
-        fake_input = mock.Mock(side_effect=['E', '5', 'h', 'D', '6', 'v', 'A', '2', 'v', 'H', '4', 'h', 'B', '10', 'v', 'D', '5', 'h'])
+        fake_input = mock.Mock(side_effect=['E', '5', 'h', 'D', '6', 'v', 'A', '2', 'v', 'H', '4', 'h', 'B', '0', 'v', 'D', '5', 'h'])
         with patch('builtins.input', fake_input):
             player = Player()
             self.battleship.place_ships(player)
@@ -62,7 +63,7 @@ class TestBattleship(unittest.TestCase):
             self.assertEqual(output, "Bob broke a rule: Ship would overlap other ships\n")
         mock_stdout.truncate(0)
         mock_stdout.seek(0)
-        fake_input = mock.Mock(side_effect=['E', '5', 'h', 'D', '9', 'h', 'A', '2', 'v', 'H', '4', 'h', 'B', '10', 'v', 'D', '5', 'h'])
+        fake_input = mock.Mock(side_effect=['E', '5', 'h', 'D', '9', 'h', 'A', '2', 'v', 'H', '4', 'h', 'B', '0', 'v', 'D', '5', 'h'])
         with patch('builtins.input', fake_input):
             player = Player()
             self.battleship.place_ships(player)
@@ -77,7 +78,7 @@ class TestBattleship(unittest.TestCase):
             Coordinates({'x': 'D', 'y': '8'}),
             Coordinates({'x': 'D', 'y': '9'})
         ])
-        fake_input = mock.Mock(side_effect=['E', '5', 'h', 'A', '2', 'v', 'H', '4', 'h', 'B', '10', 'v', 'D', '5', 'h'])
+        fake_input = mock.Mock(side_effect=['E', '5', 'h', 'A', '2', 'v', 'H', '4', 'h', 'B', '0', 'v', 'D', '5', 'h'])
         with patch('builtins.input', fake_input):
             player = Player()
             self.battleship.place_ships(player)
@@ -114,13 +115,13 @@ class TestBattleship(unittest.TestCase):
             self.battleship.battle_until_one_is_defeated()
             self.assertEqual(len(self.battleship.turns), 5)
             output = mock_stdout.getvalue()
-            self.assertEqual(output, 'Bob is victorious!\n')
+            self.assertIn('Bob is victorious!\n', output)
 
     @patch('sys.stdout', new_callable=io.StringIO)
     def test_battleship_can_play_an_ai_game_by_itself(self, mock_stdout):
         self.battleship.play_a_game(ai_v_ai=True)
         output = mock_stdout.getvalue()
-        self.assertEqual(output, 'AI is victorious!\n')
+        self.assertIn('AI is victorious!\n', output)
 
 
 if __name__ == '__main__':

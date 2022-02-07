@@ -6,7 +6,7 @@ from shot import Shot
 class Grid:
 
     x = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
-    y = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
+    y = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0']
 
     @staticmethod
     def get_location_coordinates(model, x_y, orientation):
@@ -47,6 +47,13 @@ class Grid:
             models.append(ship.model)
         return models
 
+    def get_ship(self, model: str):
+        ship_to_get = None
+        for ship in self.ships:
+            if ship.model == model:
+                ship_to_get = ship
+        return ship_to_get
+
     def get_all_shots_taken(self):
         shots_taken = []
         for shot in self.shots:
@@ -70,9 +77,9 @@ class Grid:
     def mark_shot(self, shot: Shot):
         already_taken = self.is_shot_already_taken(shot)
         if not already_taken:
-            self.shots.append(shot)
             occupied = self.get_all_ship_coordinates()
-            self.record_hits(shot, occupied)
+            shot = self.record_hits(shot, occupied)
+            self.shots.append(shot)
             return True
     
     def record_hits(self, shot: Shot, occupied: list[Coordinates]):
@@ -80,4 +87,8 @@ class Grid:
             if coordinates == shot.coordinates:
                 coordinates.hit = True
                 shot.hit = True
+                shot.coordinates.hit = True
+                shot.coordinates.model = coordinates.model
                 shot.model = coordinates.model
+                return shot
+        return shot
