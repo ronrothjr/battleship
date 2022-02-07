@@ -1,3 +1,4 @@
+from coordinates import Coordinates
 from ship import Ship
 from shot import Shot
 
@@ -53,8 +54,12 @@ class Grid:
         if not already_taken:
             self.shots.append(shot)
             occupied = self.get_all_ship_coordinates()
-            for c in occupied:
-                if c == shot.coordinates:
-                    c.hit = True
-                    shot.hit = True
+            self.record_hits(shot, occupied)
             return True
+    
+    def record_hits(self, shot: Shot, occupied: list[Coordinates]):
+        for coordinates in occupied:
+            if coordinates == shot.coordinates:
+                coordinates.hit = True
+                shot.hit = True
+                shot.model = coordinates.model

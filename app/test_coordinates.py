@@ -9,6 +9,7 @@ class TestCoordinates(unittest.TestCase):
         self.assertIsInstance(self.coordinates.x, str)
         self.assertIsInstance(self.coordinates.y, int)
         self.assertIsInstance(self.coordinates.hit, bool)
+        self.assertIsInstance(self.coordinates.model, str)
 
 
 if __name__ == '__main__':

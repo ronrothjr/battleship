@@ -1,4 +1,5 @@
 from coordinates import Coordinates
+from battleship_ai import BattleshipAI
 from battleship_ui import BattleshipUI
 from player import Player
 from shot import Shot
@@ -8,6 +9,7 @@ from turn import Turn
 class Battleship:
 
     def __init__(self) -> None:
+        self.ai = BattleshipAI()
         self.ui = BattleshipUI()
         self.players = []
         self.turns = []
@@ -40,7 +42,10 @@ class Battleship:
         shot = None
         is_shot_already_taken = True
         while is_shot_already_taken:
-            x_y = self.ui.get_shot(player)
+            if player.is_ai:
+                x_y = self.ai.get_shot(opponent)
+            else:   
+                x_y = self.ui.get_shot(player)
             coordinates = Coordinates(x_y)
             shot = Shot(coordinates)
             is_shot_already_taken = opponent.grid.is_shot_already_taken(shot)

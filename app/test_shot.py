@@ -10,6 +10,7 @@ class TestShot(unittest.TestCase):
         self.assertIsInstance(self.shot, Shot)
         self.assertIsInstance(self.shot.hit, bool)
         self.assertIsInstance(self.shot.coordinates, Coordinates)
+        self.assertIsInstance(self.shot.model, str)
 
 
 if __name__ == '__main__':

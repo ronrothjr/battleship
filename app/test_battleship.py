@@ -2,6 +2,7 @@ import unittest
 from unittest import mock
 from unittest.mock import patch
 from battleship import Battleship
+from battleship_ai import BattleshipAI
 from battleship_ui import BattleshipUI
 from coordinates import Coordinates
 from grid import Grid
@@ -29,6 +30,7 @@ class TestBattleship(unittest.TestCase):
     def test_can_instantiate_a_battleship(self):
         self.assertIsInstance(self.battleship, Battleship)
         self.assertIsInstance(self.battleship.ui, BattleshipUI)
+        self.assertIsInstance(self.battleship.ai, BattleshipAI)
         self.assertIsInstance(self.battleship.players, list)
         self.assertIsInstance(self.battleship.turns, list)
         self.assertEqual(self.battleship.add_a_player.__name__, 'add_a_player') 
@@ -64,10 +66,10 @@ class TestBattleship(unittest.TestCase):
 
     def test_battleship_can_start_battle_until_all_oppenent_ships_are_destroyed(self):
         self.add_players()
-        fake_input = mock.Mock(side_effect=['B', '2', 'E', '5', 'B', '3'])
+        fake_input = mock.Mock(side_effect=['B', '2', 'C', '2', 'B', '3'])
         with patch('builtins.input', fake_input):
             self.battleship.start_battle()
-            self.assertEqual(len(self.battleship.turns), 3)
+            self.assertEqual(len(self.battleship.turns), 5)
 
 if __name__ == '__main__':
     unittest.main()

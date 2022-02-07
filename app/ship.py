@@ -21,6 +21,8 @@ class Ship:
     def set_location(self, location: list[Coordinates]) -> bool:
         if len(location) == self.size:
             self.location = location
+            for coordinates in self.location:
+                coordinates.model = self.model
             return self
 
     def is_sunk(self):
