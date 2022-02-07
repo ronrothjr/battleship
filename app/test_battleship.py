@@ -60,7 +60,7 @@ class TestBattleship(unittest.TestCase):
             player = Player()
             self.battleship.place_ships(player)
             output = mock_stdout.getvalue()
-            self.assertEqual(output, "Bob broke a rule: Ship would overlap other ships\n")
+            self.assertIn("Bob broke a rule: Ship would overlap other ships\n", output)
         mock_stdout.truncate(0)
         mock_stdout.seek(0)
         fake_input = mock.Mock(side_effect=['E', '5', 'h', 'D', '9', 'h', 'A', '2', 'v', 'H', '4', 'h', 'B', '0', 'v', 'D', '5', 'h'])
@@ -68,7 +68,7 @@ class TestBattleship(unittest.TestCase):
             player = Player()
             self.battleship.place_ships(player)
             output = mock_stdout.getvalue()
-            self.assertEqual(output, "Bob broke a rule: Ship would extend beyond grid\n")
+            self.assertIn("Bob broke a rule: Ship would extend beyond grid\n", output)
 
     def test_can_place_ships_for_player(self):
         s5 = Ship("Carrier").set_location([

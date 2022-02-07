@@ -22,6 +22,8 @@ class TestBattleshipUI(unittest.TestCase):
         self.assertTrue(callable(self.battleship_ui.warn))
         self.assertEqual(self.battleship_ui.place_ship.__name__, 'place_ship') 
         self.assertTrue(callable(self.battleship_ui.place_ship))
+        self.assertEqual(self.battleship_ui.display_grid.__name__, 'display_grid') 
+        self.assertTrue(callable(self.battleship_ui.display_grid))
         self.assertEqual(self.battleship_ui.display_grids.__name__, 'display_grids') 
         self.assertTrue(callable(self.battleship_ui.display_grids))
         self.assertEqual(self.battleship_ui.get_shot.__name__, 'get_shot') 

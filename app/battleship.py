@@ -42,6 +42,7 @@ class Battleship:
 
     def place_ships(self, player: Player):
         for model in Ship.models():
+            self.ui.display_grid(player)
             ship_added = False
             while not ship_added:
                 x_y, orientation = self.ai.place_ship(model, player) if player.is_ai else self.ui.place_ship(model, player)
@@ -73,7 +74,8 @@ class Battleship:
             self.take_a_turn(p2, p1)
 
     def take_a_turn(self, player: Player, opponent: Player):
-        self.ui.display_grids(player, opponent)
+        if not player.is_ai or self.watch:
+            self.ui.display_grids(player, opponent)
         if (self.watch):
             time.sleep(2)
         shot = None
@@ -91,3 +93,7 @@ class Battleship:
         turn = Turn(player, shot)
         self.turns.append(turn)
         return turn
+
+
+if __name__ == '__main__':
+    Battleship().play_a_game(ai_v_ai=True, watch=True)

@@ -16,10 +16,24 @@ class BattleshipUI:
 
     def place_ship(self, ship_model: str, player: Player):
         x = input(f'Please enter an x coordinate (A-J) to place {player.name}\'s {ship_model}: ')
-        y = input('Please enter a y coordinate 1-10) to place {player.name}\'s {ship_model}: ')
+        y = input(f'Please enter a y coordinate 1-10) to place {player.name}\'s {ship_model}: ')
         orientation = input(f'Please enter the {ship_model}\'s orientation (\'h\' for horizontal or \'v\' for vertical): ')
         coordinates = {'x': x, 'y': y}
         return coordinates, orientation
+
+    def display_grid(self, player: Player):
+        ocean_grid = player.grid.get_all_ship_coordinates()
+        print(f'\t{"-" * 45}')
+        print('\t\t\tOcean Grid:')
+        print(f'\t{"-" * 45}')
+        row = reduce(lambda row, y: f'{row} | {y}', Grid.y)
+        print(f'\t|   | {row} |')
+        for x in Grid.x:
+            ocean = ''
+            for y in Grid.y:
+                ocean += f' {self.get_grid_content(ocean_grid, x, y)} |'
+            print(f'\t| {x} |{ocean}')
+        print(f'\t{"-" * 45}')
 
     def display_grids(self, player: Player, opponent: Player):
         ocean_grid = player.grid.get_all_ship_coordinates()
@@ -51,7 +65,7 @@ class BattleshipUI:
 
     def get_shot(self, player: Player):
         x = input(f'Please enter an x coordinate (A-J) to target {player.name}\'s opponent: ')
-        y = input('Please enter a y coordinate (1-10) to target {player.name}\'s opponent: ')
+        y = input(f'Please enter a y coordinate (1-10) to target {player.name}\'s opponent: ')
         coordinates = {'x': x, 'y': y}
         return coordinates
 
