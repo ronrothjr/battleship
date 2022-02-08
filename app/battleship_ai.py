@@ -53,9 +53,9 @@ class BattleshipAI:
         x_index = Grid.x.index(coordinates.x)
         y_index = Grid.y.index(coordinates.y)
         left = Coordinates({'x': Grid.x[x_index - 1], 'y': coordinates.y}) if x_index > 0 else None
-        up = Coordinates({'x': coordinates.x, 'y': Grid.x[y_index - 1]}) if y_index > 0 else None
+        up = Coordinates({'x': coordinates.x, 'y': Grid.y[y_index - 1]}) if y_index > 0 else None
         right = Coordinates({'x': Grid.x[x_index + 1], 'y': coordinates.y}) if x_index < 9 else None
-        down = Coordinates({'x': coordinates.x, 'y': Grid.x[y_index + 1]}) if y_index < 9 else None
+        down = Coordinates({'x': coordinates.x, 'y': Grid.y[y_index + 1]}) if y_index < 9 else None
         is_unused = lambda c: not c in all_shots_taken and not c in nearby_coordinates
         if left and is_unused(left):
             nearby_coordinates.append(left)

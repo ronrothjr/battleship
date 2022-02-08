@@ -26,8 +26,9 @@ class Battleship:
         self.turns = turns
         return self
 
-    def play_a_game(self, ai_v_ai=False, watch=False):
+    def play_a_game(self, ai_v_ai=False, watch=False, orientation='landscape'):
         self.watch = watch
+        self.ui.orientation = orientation
         players = [True, True] if ai_v_ai else [False, True]
         for is_ai in players:
             player = Player(is_ai=is_ai)
@@ -42,7 +43,8 @@ class Battleship:
 
     def place_ships(self, player: Player):
         for model in Ship.models():
-            self.ui.display_grid(player)
+            ocean_grid = player.grid.get_all_ship_coordinates()
+            self.ui.display_grid(ocean_grid, 'Ocean Grid')
             ship_added = False
             while not ship_added:
                 x_y, orientation = self.ai.place_ship(model, player) if player.is_ai else self.ui.place_ship(model, player)
@@ -96,4 +98,4 @@ class Battleship:
 
 
 if __name__ == '__main__':
-    Battleship().play_a_game(ai_v_ai=True, watch=True)
+    Battleship().play_a_game(ai_v_ai=True, watch=True, orientation='portrait')

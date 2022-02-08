@@ -55,7 +55,7 @@ class TestBattleship(unittest.TestCase):
 
     @patch('sys.stdout', new_callable=io.StringIO)
     def test_can_place_ships_and__warn_player_of_rule_violations(self, mock_stdout):
-        fake_input = mock.Mock(side_effect=['E', '5', 'h', 'D', '6', 'v', 'A', '2', 'v', 'H', '4', 'h', 'B', '0', 'v', 'D', '5', 'h'])
+        fake_input = mock.Mock(side_effect=['E5', 'h', 'D6', 'v', 'A2', 'v', 'H4', 'h', 'B0', 'v', 'D5', 'h'])
         with patch('builtins.input', fake_input):
             player = Player()
             self.battleship.place_ships(player)
@@ -63,7 +63,7 @@ class TestBattleship(unittest.TestCase):
             self.assertIn("Bob broke a rule: Ship would overlap other ships\n", output)
         mock_stdout.truncate(0)
         mock_stdout.seek(0)
-        fake_input = mock.Mock(side_effect=['E', '5', 'h', 'D', '9', 'h', 'A', '2', 'v', 'H', '4', 'h', 'B', '0', 'v', 'D', '5', 'h'])
+        fake_input = mock.Mock(side_effect=['E5', 'h', 'D9', 'h', 'A2', 'v', 'H4', 'h', 'B0', 'v', 'D5', 'h'])
         with patch('builtins.input', fake_input):
             player = Player()
             self.battleship.place_ships(player)
@@ -78,7 +78,7 @@ class TestBattleship(unittest.TestCase):
             Coordinates({'x': 'D', 'y': '8'}),
             Coordinates({'x': 'D', 'y': '9'})
         ])
-        fake_input = mock.Mock(side_effect=['E', '5', 'h', 'A', '2', 'v', 'H', '4', 'h', 'B', '0', 'v', 'D', '5', 'h'])
+        fake_input = mock.Mock(side_effect=['E5', 'h', 'A2', 'v', 'H4', 'h', 'B0', 'v', 'D5', 'h'])
         with patch('builtins.input', fake_input):
             player = Player()
             self.battleship.place_ships(player)
@@ -91,7 +91,7 @@ class TestBattleship(unittest.TestCase):
 
     def test_players_can_take_a_turn(self):
         self.add_players()
-        fake_input = mock.Mock(side_effect=['E', '5', 'E', '5', 'F', '5'])
+        fake_input = mock.Mock(side_effect=['E5', 'E5', 'F5'])
         with patch('builtins.input', fake_input):
             turn = self.battleship.take_a_turn(self.battleship.players[0], self.battleship.players[1])
             self.assertTrue(turn in self.battleship.turns)
@@ -102,7 +102,7 @@ class TestBattleship(unittest.TestCase):
 
     def test_battleship_can_play_a_round(self):
         self.add_players()
-        fake_input = mock.Mock(side_effect=['B', '2', 'E', '5'])
+        fake_input = mock.Mock(side_effect=['B2', 'E5'])
         with patch('builtins.input', fake_input):
             self.battleship.play_a_round()
             self.assertEqual(len(self.battleship.turns), 2)
@@ -110,7 +110,7 @@ class TestBattleship(unittest.TestCase):
     @patch('sys.stdout', new_callable=io.StringIO)
     def test_battleship_can_start_battle_until_all_oppenent_ships_are_destroyed(self, mock_stdout):
         self.add_players()
-        fake_input = mock.Mock(side_effect=['B', '2', 'C', '2', 'B', '3'])
+        fake_input = mock.Mock(side_effect=['B2', 'C2', 'B3'])
         with patch('builtins.input', fake_input):
             self.battleship.battle_until_one_is_defeated()
             self.assertEqual(len(self.battleship.turns), 5)

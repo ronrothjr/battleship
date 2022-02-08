@@ -37,6 +37,13 @@ class TestShot(unittest.TestCase):
         is_sunk = self.ship.is_sunk()
         self.assertTrue(is_sunk)
 
+    def test_ship_can_tell_whether_it_is_not_sunk(self):
+        location = [Coordinates({'x': 'E', 'y': '5'}), Coordinates({'x': 'E', 'y': '6'})]
+        self.ship.set_location(location)
+        self.ship.location[0].hit = True
+        is_sunk = self.ship.is_sunk()
+        self.assertFalse(is_sunk)
+
 
 
 if __name__ == '__main__':

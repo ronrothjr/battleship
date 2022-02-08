@@ -19,7 +19,8 @@ class Player:
         return self.grid.get_ship(model).is_sunk()
 
     def is_defeated(self):
-        is_ship_sunk = list(filter(lambda ship: ship.is_sunk(), self.grid.ships))
+        is_sunk = lambda ship: ship.is_sunk()
+        is_ship_sunk = [x for x in self.grid.ships if is_sunk(x)]
         is_defeated = len(is_ship_sunk) == len(self.grid.ships)
         return is_defeated
 

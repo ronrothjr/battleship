@@ -1,7 +1,7 @@
 import io, unittest
 from unittest import mock
 from unittest.mock import patch
-from app.coordinates import Coordinates
+from coordinates import Coordinates
 from battleship import Battleship
 from battleship_ui import BattleshipUI
 from player import Player
@@ -16,8 +16,19 @@ class TestBattleshipUI(unittest.TestCase):
 
     def test_can_instantiate_a_battleship_ui(self):
         self.assertIsInstance(self.battleship_ui, BattleshipUI)
+        self.assertIsInstance(self.battleship_ui.spacing, int)
+        self.assertIsInstance(self.battleship_ui.grid_width, int)
+        self.assertIsInstance(self.battleship_ui.orientation, str)
         self.assertEqual(self.battleship_ui.get_name.__name__, 'get_name') 
         self.assertTrue(callable(self.battleship_ui.get_name))
+        self.assertEqual(self.battleship_ui.validate_coordinates.__name__, 'validate_coordinates') 
+        self.assertTrue(callable(self.battleship_ui.validate_coordinates))
+        self.assertEqual(self.battleship_ui.prompt_for_valid_coordinates.__name__, 'prompt_for_valid_coordinates') 
+        self.assertTrue(callable(self.battleship_ui.prompt_for_valid_coordinates))
+        self.assertEqual(self.battleship_ui.display_output.__name__, 'display_output') 
+        self.assertTrue(callable(self.battleship_ui.display_output))
+        self.assertEqual(self.battleship_ui.center.__name__, 'center') 
+        self.assertTrue(callable(self.battleship_ui.center))
         self.assertEqual(self.battleship_ui.warn.__name__, 'warn') 
         self.assertTrue(callable(self.battleship_ui.warn))
         self.assertEqual(self.battleship_ui.place_ship.__name__, 'place_ship') 
@@ -45,10 +56,10 @@ class TestBattleshipUI(unittest.TestCase):
     def test_ui_can_warn_player_of_rules_violation(self, mock_stdout):
         self.battleship_ui.warn(Player(), 'Don\'t piss in the wind!')
         output = mock_stdout.getvalue()
-        self.assertEqual(output, 'Bob broke a rule: Don\'t piss in the wind!\n')
+        self.assertEqual(output, '\t  Bob broke a rule: Don\'t piss in the wind!\n')
 
     def test_ui_can_get_ship_placement_coordinates_and_orientation(self):
-        fake_input = mock.Mock(side_effect=['E','5','h'])
+        fake_input = mock.Mock(side_effect=['E5','h'])
         with patch('builtins.input', fake_input):
             x_y_dict, orientation = self.battleship_ui.place_ship('Destroyer', Player())
             self.assertEqual(x_y_dict, {'x': 'E', 'y': '5'})
@@ -67,7 +78,7 @@ class TestBattleshipUI(unittest.TestCase):
         self.assertIn(f'\t{"-" * 45}\t\t{"-" * 45}\n\t\t\tOcean Grid:\t\t\t\t\t\tTarget Grid:\n\t{"-" * 45}\t\t{"-" * 45}\n', output)
 
     def test_ui_can_get_a_shot_from_a_player(self):
-        fake_input = mock.Mock(side_effect=['E','5'])
+        fake_input = mock.Mock(side_effect=['E5'])
         with patch('builtins.input', fake_input):
             x_y_dict = self.battleship_ui.get_shot(Player())
             self.assertEqual(x_y_dict, {'x': 'E', 'y': '5'})
@@ -81,13 +92,13 @@ class TestBattleshipUI(unittest.TestCase):
         shot.model = 'Battleship'
         self.battleship_ui.announce_hit(Player(), shot)
         output = mock_stdout.getvalue()
-        self.assertEqual(output, 'Bob has scored a hit on a Battleship!\n')
+        self.assertEqual(output, f'\t{" " * 31}Bob has scored a hit on a Battleship!\n')
 
     @patch('sys.stdout', new_callable=io.StringIO)
     def test_ui_can_announce_winner(self, mock_stdout):
         self.battleship_ui.announce_winner(Player())
         output = mock_stdout.getvalue()
-        self.assertEqual(output, 'Bob is victorious!\n')
+        self.assertEqual(output, f'\t{" " * 41}Bob is victorious!\n')
 
 
 
