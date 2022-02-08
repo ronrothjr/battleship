@@ -97,9 +97,9 @@ class TestBattleshipUI(unittest.TestCase):
 
     @patch('sys.stdout', new_callable=io.StringIO)
     def test_ui_can_announce_winner(self, mock_stdout):
-        self.battleship_ui.announce_winner(Player())
+        self.battleship_ui.announce_winner(Player(), 25)
         output = mock_stdout.getvalue()
-        self.assertEqual(output, f'\t{" " * 41}Bob is victorious!\n')
+        self.assertEqual(output, f'\t{" " * 41}Bob is victorious!\n\t{" " * 43}(in 25 rounds)\n')
 
 
 

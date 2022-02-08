@@ -115,6 +115,8 @@ class BattleshipUI:
         text = self.display_output(f'{player.name} has sunk a {shot.model}!')
         print(text)
 
-    def announce_winner(self, player: Player):
+    def announce_winner(self, player: Player, rounds: int):
         text = self.display_output(f'{player.name} is victorious!')
+        print(text)
+        text = self.display_output(f'(in {rounds} rounds)')
         print(text)

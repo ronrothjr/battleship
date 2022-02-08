@@ -66,7 +66,8 @@ class Battleship:
         winner = self.players[0] if self.players[1].is_defeated() else self.players[1]
         loser = self.players[1] if self.players[1].is_defeated() else self.players[0]
         self.ui.display_grids(winner, loser)
-        self.ui.announce_winner(winner)
+        rounds = int(int(len(self.turns)+1)/2)
+        self.ui.announce_winner(winner, rounds)
 
     def play_a_round(self):
         p1 = self.players[0]
