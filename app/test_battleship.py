@@ -17,7 +17,8 @@ class TestBattleship(unittest.TestCase):
     def setUp(self) -> None:
         self.battleship = Battleship()
 
-    def add_players(self):
+    @patch('sys.stdout', new_callable=io.StringIO)
+    def add_players(self, mock_stdout):
         player_ship = Ship("Destroyer").set_location([Coordinates({'x': 'E', 'y': '5'}), Coordinates({'x': 'E', 'y': '6'})])
         player_grid = Grid().set_ships([player_ship])
         player = Player(player_grid)
@@ -70,7 +71,8 @@ class TestBattleship(unittest.TestCase):
             output = mock_stdout.getvalue()
             self.assertIn("Bob broke a rule: Ship would extend beyond grid\n", output)
 
-    def test_can_place_ships_for_player(self):
+    @patch('sys.stdout', new_callable=io.StringIO)
+    def test_can_place_ships_for_player(self, mock_stdout):
         s5 = Ship("Carrier").set_location([
             Coordinates({'x': 'D', 'y': '5'}),
             Coordinates({'x': 'D', 'y': '6'}),
@@ -84,12 +86,14 @@ class TestBattleship(unittest.TestCase):
             self.battleship.place_ships(player)
             self.assertEqual(player.grid.ships[4].location, s5.location)
 
-    def test_can_place_ships_for_ai(self):
+    @patch('sys.stdout', new_callable=io.StringIO)
+    def test_can_place_ships_for_ai(self, mock_stdout):
         player = Player(is_ai=True)
         self.battleship.place_ships(player)
         self.assertEqual(len(player.grid.ships), 5)
 
-    def test_players_can_take_a_turn(self):
+    @patch('sys.stdout', new_callable=io.StringIO)
+    def test_players_can_take_a_turn(self, mock_stdout):
         self.add_players()
         fake_input = mock.Mock(side_effect=['E5', 'E5', 'F5'])
         with patch('builtins.input', fake_input):
@@ -100,7 +104,8 @@ class TestBattleship(unittest.TestCase):
             self.assertTrue(turn in self.battleship.turns)
             self.assertTrue(turn.shot, Shot(Coordinates({'x': 'F', 'y': '5'})))
 
-    def test_battleship_can_play_a_round(self):
+    @patch('sys.stdout', new_callable=io.StringIO)
+    def test_battleship_can_play_a_round(self, mock_stdout):
         self.add_players()
         fake_input = mock.Mock(side_effect=['B2', 'E5'])
         with patch('builtins.input', fake_input):

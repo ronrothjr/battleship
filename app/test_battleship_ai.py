@@ -1,4 +1,5 @@
-import unittest
+import io, unittest
+from unittest.mock import patch
 from coordinates import Coordinates
 from battleship import Battleship
 from battleship_ai import BattleshipAI
@@ -30,7 +31,8 @@ class TestAI(unittest.TestCase):
         self.assertIsInstance(x_y['x'], str)
         self.assertIsInstance(x_y['y'], str)
 
-    def test_ai_can_get_shots_on_ships_not_yet_sunk(self):
+    @patch('sys.stdout', new_callable=io.StringIO)
+    def test_ai_can_get_shots_on_ships_not_yet_sunk(self, mock_stdout):
         battleship = Battleship()
         battleship.set_players([Player(is_ai=True), Player(is_ai=True)])
         p1 = battleship.players[0]

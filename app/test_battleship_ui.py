@@ -58,7 +58,8 @@ class TestBattleshipUI(unittest.TestCase):
         output = mock_stdout.getvalue()
         self.assertEqual(output, '\t  Bob broke a rule: Don\'t piss in the wind!\n')
 
-    def test_ui_can_get_ship_placement_coordinates_and_orientation(self):
+    @patch('sys.stdout', new_callable=io.StringIO)
+    def test_ui_can_get_ship_placement_coordinates_and_orientation(self, mock_stdout):
         fake_input = mock.Mock(side_effect=['E5','h'])
         with patch('builtins.input', fake_input):
             x_y_dict, orientation = self.battleship_ui.place_ship('Destroyer', Player())
