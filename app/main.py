@@ -1,5 +1,5 @@
 import argparse
-from battleship import Battleship
+from menu import Menu
 
 
 def get_args():
@@ -16,7 +16,7 @@ def get_args():
 
 def main():
     args = get_args()
-    Battleship().play_a_game(ai_v_ai=args.ai_v_ai, watch=args.watch, orientation=args.orientation)
+    Menu().display_main_menu()
 
 if __name__ == '__main__':
     main()

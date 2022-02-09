@@ -13,10 +13,15 @@ class Ship:
             "Carrier": 5
         }
 
-    def __init__(self, model: str) -> None:
-        self.model = model
-        self.size = (Ship.models())[model]
-        self.location = []
+    def __init__(self, model: str=None, load: dict=None) -> None:
+        if load:
+            self.model = load['model']
+            self.size = load['size']
+            self.location = [Coordinates(load=c) for c in load['location']]
+        else:
+            self.model = model
+            self.size = (Ship.models())[model]
+            self.location = []
 
     def set_location(self, location: list[Coordinates]) -> bool:
         if len(location) == self.size:

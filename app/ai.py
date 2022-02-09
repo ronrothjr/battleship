@@ -6,7 +6,7 @@ from player import Player
 from shot import Shot
 
 
-class BattleshipAI:
+class AI:
 
     def __init__(self) -> None:
         pass

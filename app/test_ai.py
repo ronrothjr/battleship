@@ -1,8 +1,8 @@
 import io, unittest
 from unittest.mock import patch
 from coordinates import Coordinates
-from battleship import Battleship
-from battleship_ai import BattleshipAI
+from session import Session
+from ai import AI
 from player import Player
 from shot import Shot
 
@@ -10,10 +10,10 @@ from shot import Shot
 class TestAI(unittest.TestCase):
 
     def setUp(self) -> None:
-        self.ai = BattleshipAI()
+        self.ai = AI()
 
     def test_can_instantiate_an_ai(self):
-        self.assertIsInstance(self.ai, BattleshipAI)
+        self.assertIsInstance(self.ai, AI)
         self.assertEqual(self.ai.place_ship.__name__, 'place_ship') 
         self.assertTrue(callable(self.ai.place_ship))
         self.assertEqual(self.ai.get_shot.__name__, 'get_shot') 
@@ -33,12 +33,12 @@ class TestAI(unittest.TestCase):
 
     @patch('sys.stdout', new_callable=io.StringIO)
     def test_ai_can_get_shots_on_ships_not_yet_sunk(self, mock_stdout):
-        battleship = Battleship()
-        battleship.set_players([Player(is_ai=True), Player(is_ai=True)])
-        p1 = battleship.players[0]
-        p2 = battleship.players[1]
-        battleship.place_ships(p1)
-        battleship.place_ships(p2)
+        session = Session()
+        session.players = [Player(is_ai=True), Player(is_ai=True)]
+        p1 = session.players[0]
+        p2 = session.players[1]
+        session.place_ships(p1)
+        session.place_ships(p2)
         coordinates = p1.grid.ships[0].location[0]
         shot = Shot(coordinates=coordinates)
         p1.take_a_shot(shot)

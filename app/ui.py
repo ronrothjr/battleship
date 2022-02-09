@@ -5,7 +5,7 @@ from player import Player
 from shot import Shot
 
 
-class BattleshipUI:
+class UI:
 
     def __init__(self, orientation='landscape'):
         self.spacing = 10
@@ -26,6 +26,8 @@ class BattleshipUI:
         coordinates = None
         while not coordinates:
             text_input = input(prompt)
+            if text_input.lower() in ['exit', 'e', 'quit', 'q']:
+                return True
             coordinates = self.validate_coordinates(text_input)
         return coordinates
 

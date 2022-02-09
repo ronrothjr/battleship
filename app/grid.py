@@ -23,9 +23,13 @@ class Grid:
             coordinates.append(Coordinates(x_y_dict))
         return coordinates
 
-    def __init__(self):
-        self.ships = []
-        self.shots = []
+    def __init__(self, load: dict=None):
+        if load:
+            self.ships = [Ship(load=s) for s in load['ships']]
+            self.shots = [Shot(load=s) for s in load['shots']]
+        else:
+            self.ships = []
+            self.shots = []
 
     def set_ships(self, ships):
         self.ships = ships

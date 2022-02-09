@@ -1,15 +1,18 @@
-from coordinates import Coordinates
 from grid import Grid
-from ship import Ship
 from shot import Shot
 
 
 class Player:
 
-    def __init__(self, grid: Grid=None, name: str='Bob', is_ai: bool=False) -> None:
-        self.grid = grid if grid else Grid()
-        self.name = 'AI' if is_ai else name
-        self.is_ai = is_ai
+    def __init__(self, grid: Grid=None, name: str='Bob', is_ai: bool=False, load: dict=None) -> None:
+        if load:
+            self.grid = Grid(load=load['grid'])
+            self.name = load['name']
+            self.is_ai = load['is_ai']
+        else:
+            self.grid = grid if grid else Grid()
+            self.name = 'AI' if is_ai else name
+            self.is_ai = is_ai
 
     def take_a_shot(self, shot: Shot=None):
         marked = self.grid.mark_shot(shot)
