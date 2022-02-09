@@ -31,7 +31,6 @@ class Ship:
             return self
 
     def is_sunk(self):
-        is_hit = lambda coordinates: coordinates.hit
-        is_damaged = [x for x in self.location if is_hit(x)]
+        is_damaged = [x for x in self.location if x.hit]
         is_sunk = len(is_damaged) == len(self.location)
         return is_sunk

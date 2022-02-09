@@ -55,6 +55,7 @@ class Session:
 
     def play_a_loaded_game(self):
         self.battle_until_one_is_defeated()
+        self.display_game_result()
         return self
 
     def add_a_player(self, player: Player):
