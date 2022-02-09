@@ -57,25 +57,30 @@ class Menu:
         output = self.ui.display_output('(0) - Exit to Main Menu', 45)
         print(output)
         games = self.game.load_a_game()
-        for x in range(0, len(games)):
-            game = games[x]
+        x = 0
+        keys = games.keys()
+        for timestamp in keys:
+            game = games[timestamp]
             p1 = game["players"][0]["name"]
             p2 = game["players"][1]["name"]
-            timestamp = game["timestamp"]
             item = f'({x + 1}) - {p1} v {p2} ({timestamp})'
             output = self.ui.display_output(item, 45)
             print(output)
+            x += 1
         game_choice = self.get_loaded_game_choice(games)
         if game_choice == 0:
             return
         else:
-            game_to_play = games[game_choice - 1]
-            self.play_a_saved_game(game_to_play)
+            key_index = game_choice - 1
+            timestamp = list(keys)[key_index]
+            game_to_play = games[timestamp]
+            game = self.play_a_saved_game(game_to_play)
+            self.game.save_a_game(game)
 
     def play_a_saved_game(self, game):
             session = Session()
             session.load_a_saved_game(game)
-            session.play_a_loaded_game()
+            return session.play_a_loaded_game()
 
     def get_loaded_game_choice(self, games):
         game_choice = None

@@ -71,13 +71,13 @@ class Data(DataInterface):
 
     def decode_records(self, records_str: str) -> list:
         if records_str is None:
-            return []
+            return {}
         file_records = json.loads(records_str)
         return file_records
 
     def encode_records(self, records: list) -> str:
         if not records:
-            return '[]'
+            return '{}'
         file_str = json.dumps(records)
         return file_str
 
@@ -92,5 +92,5 @@ class Data(DataInterface):
             file_records = self.decode_records(file_str)
             return file_records
         except:
-            return []
+            return {}
         

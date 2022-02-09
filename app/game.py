@@ -15,9 +15,9 @@ class Game:
 
     def save_a_game(self, game_data):
         game = self.encode_game(game_data)
-        game.update(timestamp=datetime.datetime.today().strftime("%Y%m%d%H%M%S"))
         games = self.data_store.load_records('games')
-        games.append(game)
+        timestamp = game.get('timestamp', datetime.datetime.today().strftime("%Y%m%d%H%M%S"))
+        games[timestamp] = game
         self.data_store.save_records('games', games)
         return True
 

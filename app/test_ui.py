@@ -76,7 +76,7 @@ class TestUI(unittest.TestCase):
         session.place_ships(p2)
         self.ui.display_grids(p1, p2)
         output = mock_stdout.getvalue()
-        self.assertIn(f'\t{"-" * 45}\t\t{"-" * 45}\n\t\t\tOcean Grid:\t\t\t\t\t\tTarget Grid:\n\t{"-" * 45}\t\t{"-" * 45}\n', output)
+        self.assertIn(f'\t{"-" * 45}\n\t\t\tOcean Grid:\n', output)
 
     def test_ui_can_get_a_shot_from_a_player(self):
         fake_input = mock.Mock(side_effect=['E5'])
@@ -93,13 +93,13 @@ class TestUI(unittest.TestCase):
         shot.model = 'Battleship'
         self.ui.announce_hit(Player(), shot)
         output = mock_stdout.getvalue()
-        self.assertEqual(output, f'\t{" " * 31}Bob has scored a hit on a Battleship!\n')
+        self.assertEqual(output, f'\t{" " * 4}Bob has scored a hit on a Battleship!\n')
 
     @patch('sys.stdout', new_callable=io.StringIO)
     def test_ui_can_announce_winner(self, mock_stdout):
         self.ui.announce_winner(Player(), 25)
         output = mock_stdout.getvalue()
-        self.assertEqual(output, f'\t{" " * 41}Bob is victorious!\n\t{" " * 43}(in 25 rounds)\n')
+        self.assertEqual(output, f'\t{" " * 13}Bob is victorious!\n\t{" " * 15}(in 25 rounds)\n')
 
 
 

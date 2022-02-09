@@ -14,7 +14,7 @@ class TestData(unittest.TestCase):
 
     def test_decode_records_should_return_empty_array_if_none(self):
         records = self.data.decode_records(None)
-        self.assertEqual(records, [])
+        self.assertEqual(records, {})
 
     def test_decode_records_should_return_list_if_not_empty(self):
         records = self.data.decode_records('[{"username":"John","password":"1234"}]')
@@ -22,7 +22,7 @@ class TestData(unittest.TestCase):
 
     def test_encode_records_should_return_none_if_empty_array(self):
         file_str = self.data.encode_records([])
-        self.assertEqual(file_str, '[]')
+        self.assertEqual(file_str, '{}')
 
     def test_save_records_from_list(self):
         file_size = self.data.save_records('test_data', [{"username":"John","password":"1234"}, {"username":"Jane","password":"4321"}])
@@ -34,7 +34,7 @@ class TestData(unittest.TestCase):
 
     def test_load_records_returns_empty_list_if_collection_does_not_exist(self):
         test_data2 = self.data.load_records('test_data2')
-        self.assertEqual(test_data2, [])
+        self.assertEqual(test_data2, {})
 
 if __name__ == '__main__':
     unittest.main() 

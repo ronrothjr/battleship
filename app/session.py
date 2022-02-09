@@ -1,4 +1,4 @@
-import time
+import datetime
 from ai import AI
 from coordinates import Coordinates
 from game import Game
@@ -13,6 +13,7 @@ from ui import UI
 class Session:
 
     def __init__(self) -> None:
+        self.timestamp = datetime.datetime.today().strftime("%Y%m%d%H%M%S")
         self.watch = False
         self.data = Game()
         self.ai = AI()
@@ -20,7 +21,7 @@ class Session:
         self.players = []
         self.turns = []
 
-    def play_a_game(self, ai_v_ai=False, watch=False, orientation='landscape'):
+    def play_a_game(self, ai_v_ai=False, watch=False, orientation='portrait'):
         self.watch = watch
         self.ui.orientation = orientation
         players = [True, True] if ai_v_ai else [False, True]
@@ -33,6 +34,8 @@ class Session:
         return self
 
     def load_a_saved_game(self, game):
+        self.timestamp = game['timestamp']
+        self.ui.orientation = game['ui']['orientation']
         self.set_players(game['players'])
         self.set_turns(game['turns'])
 
@@ -50,9 +53,7 @@ class Session:
             self.turns.append(Turn(load=t))
         return self
 
-    def play_a_loaded_game(self, ai_v_ai=False, watch=False, orientation='landscape'):
-        self.watch = watch
-        self.ui.orientation = orientation
+    def play_a_loaded_game(self):
         self.battle_until_one_is_defeated()
         return self
 

@@ -7,7 +7,7 @@ from shot import Shot
 
 class UI:
 
-    def __init__(self, orientation='landscape'):
+    def __init__(self, orientation='portrait'):
         self.spacing = 10
         self.grid_width = 45
         self.orientation = orientation
@@ -26,7 +26,7 @@ class UI:
         coordinates = None
         while not coordinates:
             text_input = input(prompt)
-            if text_input.lower() in ['exit', 'e', 'quit', 'q']:
+            if text_input.lower() in ['exit', 'e', 'quit', 'q', 'pause', 'p']:
                 return True
             coordinates = self.validate_coordinates(text_input)
         return coordinates

@@ -36,19 +36,25 @@ class TestMenu(unittest.TestCase):
 
     @patch('sys.stdout', new_callable=io.StringIO)
     def test_can_display_main_menu(self, mock_stdout):
+        data_store = Data(FilesMock())
+        game = Game(data_store=data_store)
+        menu = Menu(game=game)
         fake_input = mock.Mock(side_effect=['E'])
         with patch('builtins.input', fake_input):
-            self.menu.display_main_menu()
+            menu.display_main_menu()
             output = mock_stdout.getvalue()
             self.assertEqual(output, f'\t{" " * 18}Main Menu\n\t{" " * 16}(P)lay a Game\n\t{" " * 16}(L)oad a Game\n\t{" " * 19}(E)xit\n')
 
     @patch('sys.stdout', new_callable=io.StringIO)
     def test_can_display_load_game_menu(self, mock_stdout):
-        games_str = '[{"watch": false, "ai": {}, "ui": {"spacing": 10, "grid_width": 45, "orientation": "landscape"}, "players": [{"name": "Bob"}, {"name": "AI"}], "turns": [], "timestamp": "20220208152345"}]'
-        self.menu.game.data_store.files.files['games.txt'] = games_str
+        data_store = Data(FilesMock())
+        game = Game(data_store=data_store)
+        menu = Menu(game=game)
+        games_str = '[{"watch": false, "ai": {}, "ui": {"spacing": 10, "grid_width": 45, "orientation": "portrait"}, "players": [{"name": "Bob"}, {"name": "AI"}], "turns": [], "timestamp": "20220208152345"}]'
+        menu.game.data_store.files.files['games.txt'] = games_str
         fake_input = mock.Mock(side_effect=['0'])
         with patch('builtins.input', fake_input):
-            self.menu.load_a_game()
+            menu.load_a_game()
             output = mock_stdout.getvalue()
             expected = f'\t{" " * 17}Saved Games\n\t{" " * 11}(0) - Exit to Main Menu\n\t{" " * 7}(1) - Bob v AI (20220208152345)\n'
             self.assertEqual(output, expected)
