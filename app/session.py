@@ -1,4 +1,4 @@
-import datetime
+import datetime, time
 from ai import AI
 from coordinates import Coordinates
 from game import Game
