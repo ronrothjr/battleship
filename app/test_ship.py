@@ -13,6 +13,7 @@ class TestShot(unittest.TestCase):
         self.assertIsInstance(self.ship.location, list)
         self.assertIsInstance(self.ship.model, str)
         self.assertIsInstance(self.ship.size, int)
+        self.assertIsInstance(self.ship.sunk, bool)
         self.assertEqual(self.ship.set_location.__name__, 'set_location') 
         self.assertTrue(callable(self.ship.set_location))
         self.assertEqual(self.ship.is_sunk.__name__, 'is_sunk') 

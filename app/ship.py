@@ -18,10 +18,12 @@ class Ship:
             self.model = load['model']
             self.size = load['size']
             self.location = [Coordinates(load=c) for c in load['location']]
+            self.sunk = load['sunk']
         else:
             self.model = model
             self.size = (Ship.models())[model]
             self.location = []
+            self.sunk = False
 
     def set_location(self, location: list[Coordinates]) -> bool:
         if len(location) == self.size:
@@ -31,6 +33,14 @@ class Ship:
             return self
 
     def is_sunk(self):
-        is_damaged = [x for x in self.location if x.hit]
-        is_sunk = len(is_damaged) == len(self.location)
+        if self.sunk:
+            return self.sunk
+        is_damaged = []
+        for x in self.location:
+            if x.hit == True:
+                is_damaged.append(x)
+        is_sunk = is_damaged == self.location
+        self.sunk = is_sunk
+        if is_damaged:
+            is_sunk
         return is_sunk

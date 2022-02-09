@@ -64,9 +64,13 @@ class Grid:
             shots_taken.append(shot.coordinates)
         return shots_taken
 
-    def add_ship(self, ship: Ship):
+    def is_ship_blocked(self, ship: Ship):
         occupied = self.get_all_ship_coordinates()
         blocked = list(filter(lambda coord: coord in occupied, ship.location))
+        return blocked
+
+    def add_ship(self, ship: Ship):
+        blocked = self.is_ship_blocked(ship)
         current_models = self.get_all_ship_models()
         added = ship.model in current_models
         if not blocked and not added:
@@ -78,13 +82,15 @@ class Grid:
         already_taken = shot.coordinates in shots_taken
         return already_taken
 
-    def mark_shot(self, shot: Shot):
-        already_taken = self.is_shot_already_taken(shot)
-        if not already_taken:
-            occupied = self.get_all_ship_coordinates()
-            shot = self.record_hits(shot, occupied)
+    def add_shot(self, shot: Shot):
+        if not self.is_shot_already_taken(shot):
             self.shots.append(shot)
             return True
+
+    def mark_shot(self, shot: Shot):
+        occupied = self.get_all_ship_coordinates()
+        shot = self.record_hits(shot, occupied)
+        return True
     
     def record_hits(self, shot: Shot, occupied: list[Coordinates]):
         for coordinates in occupied:

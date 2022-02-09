@@ -28,69 +28,80 @@ class Menu:
         choices = [x for x in self.options.keys()]
         menu_choice = None
         while not menu_choice:
-            prompt = '\tChoose an option: '
-            menu_choice = input(prompt)
+            prompt = self.ui.display_output(f'Please choose an option ({", ".join(choices)})', 45)
+            self.ui.print_there(self.ui.spacing, 8, f'{prompt}')
+            menu_choice = self.ui.input()
             if menu_choice.lower() not in choices:
-                print(f'\n\tPlease choose an option ({", ".join(choices)})')
+                self.ui.print_there(self.ui.spacing, 8, f'{prompt}')
                 menu_choice = None
         return menu_choice
 
     def display_main_menu(self):
         menu_choice = ''
         while not menu_choice.lower() == 'e':
+            x = 2
+            self.ui.clear()
             output = self.ui.display_output('Main Menu', 45)
-            print(output)
+            self.ui.print_there(self.ui.spacing, x, f'{output}')
             for v in self.options.values():
+                x += 1
                 output = self.ui.display_output(v['menu_choice'], 45)
-                print(output)
+                self.ui.print_there(self.ui.spacing, x, f'{output}')
             menu_choice = self.get_menu_choice()
             option = self.options[menu_choice.lower()]
             option['action']()
 
     def play_a_game(self):
         game = Session().play_a_game()
-        self.game.save_a_game(game)
+        if game:
+            self.game.save_a_game(game)
 
     def load_a_game(self):
+        self.ui.clear()
         output = self.ui.display_output('Saved Games', 45)
-        print(output)
+        self.ui.print_there(self.ui.spacing, 4, f'{output}')
         output = self.ui.display_output('(0) - Exit to Main Menu', 45)
-        print(output)
+        self.ui.print_there(self.ui.spacing, 5, f'{output}')
         games = self.game.load_a_game()
-        x = 0
-        keys = games.keys()
-        for timestamp in keys:
-            game = games[timestamp]
-            p1 = game["players"][0]["name"]
-            p2 = game["players"][1]["name"]
-            item = f'({x + 1}) - {p1} v {p2} ({timestamp})'
-            output = self.ui.display_output(item, 45)
-            print(output)
-            x += 1
-        game_choice = self.get_loaded_game_choice(games)
+        x = 1
+        keys = list(games.keys())
+        if keys:
+            keys.reverse()
+            keys = keys[0:20]
+            for timestamp in keys:
+                game = games[timestamp]
+                p1 = game["players"][0]["name"]
+                p2 = game["players"][1]["name"]
+                item = f'({x}) - {p1} v {p2} ({timestamp})'
+                output = self.ui.display_output(item, 45)
+                self.ui.print_there(self.ui.spacing, x + 5, f'{output}')
+                x += 1
+        game_choice = self.get_loaded_game_choice(keys)
         if game_choice == 0:
             return
         else:
             key_index = game_choice - 1
-            timestamp = list(keys)[key_index]
+            timestamp = keys[key_index]
             game_to_play = games[timestamp]
             game = self.play_a_saved_game(game_to_play)
-            self.game.save_a_game(game)
+            if game: 
+                self.game.save_a_game(game)
+
+    def get_loaded_game_choice(self, keys):
+        game_choice = None
+        while not game_choice:
+            prompt = self.ui.display_output(f'Please choose a game (0-{len(keys) + 1})', 45)
+            self.ui.print_there(self.ui.spacing, 2, f'{prompt}')
+            game_choice = self.ui.input()
+            if int(game_choice) not in range(0, len(keys) + 2):
+                self.ui.print_there(self.ui.spacing, 2, f'{prompt}')
+                game_choice = None
+        return int(game_choice)
 
     def play_a_saved_game(self, game):
             session = Session()
             session.load_a_saved_game(game)
             return session.play_a_loaded_game()
-
-    def get_loaded_game_choice(self, games):
-        game_choice = None
-        while not game_choice:
-            prompt = '\tChoose an game: '
-            game_choice = input(prompt)
-            if int(game_choice) not in range(0, len(games) + 2):
-                print(f'\n\tPlease choose a game (0-{len(games) + 1})')
-                game_choice = None
-        return int(game_choice)
 
 if __name__ == '__main__':
     Menu().display_main_menu()
