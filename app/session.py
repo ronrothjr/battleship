@@ -28,18 +28,14 @@ class Session:
         for is_ai in players:
             player = Player(is_ai=is_ai)
             self.add_a_player(player)
-            cancelled = self.place_ships(player)
-            if cancelled:
-                return False
-        is_battle_decided = self.battle_until_one_is_defeated()
-        if is_battle_decided:
-            self.display_game_result()
-            self.ui.input()
-        self.ui.clear()
+            self.place_ships(player)
+        self.battle_until_one_is_defeated()
+        self.display_game_result()
         return self
 
     def load_a_saved_game(self, game):
         self.timestamp = game['timestamp']
+        self.ui.orientation = game['ui']['orientation']
         self.set_players(game['players'])
         self.set_turns(game['turns'])
 
@@ -58,11 +54,8 @@ class Session:
         return self
 
     def play_a_loaded_game(self):
-        is_battle_decided = self.battle_until_one_is_defeated()
-        if is_battle_decided:
-            self.display_game_result()
-            self.ui.input()
-        self.ui.clear()
+        self.battle_until_one_is_defeated()
+        self.display_game_result()
         return self
 
     def add_a_player(self, player: Player):
@@ -73,12 +66,10 @@ class Session:
     def place_ships(self, player: Player):
         for model in Ship.models():
             ocean_grid = player.grid.get_all_ship_coordinates()
+            self.ui.display_grid(ocean_grid, 'Ocean Grid')
             ship_added = False
             while not ship_added:
                 x_y, orientation = self.ai.place_ship(model, player) if player.is_ai else self.ui.place_ship(model, player, ocean_grid, 'Ocean Grid')
-                cancelled = isinstance(x_y, bool)
-                if cancelled:
-                    return True
                 location = Grid.get_location_coordinates(model, x_y, orientation)
                 if not location:
                     if not player.is_ai:
@@ -88,7 +79,6 @@ class Session:
                 ship_added = player.grid.add_ship(ship)
                 if not ship_added and not player.is_ai:
                     self.ui.warn(player, 'Ship would overlap other ships')
-        return False
 
     def battle_until_one_is_defeated(self):
         is_battle_decided = False
@@ -96,7 +86,6 @@ class Session:
         while not is_battle_decided and not battle_is_paused:
             battle_is_paused = self.play_a_round()
             is_battle_decided = list(filter(lambda player: player.is_defeated(), self.players))
-        return is_battle_decided
 
     def play_a_round(self):
         battle_is_paused = False
@@ -113,38 +102,35 @@ class Session:
         return battle_is_paused
 
     def take_a_turn(self, player: Player, opponent: Player):
-        if not player.is_ai or self.watch:
+        is_time_to_display_grids = not player.is_ai or self.watch
+        if is_time_to_display_grids:
             self.ui.display_grids(player)
+        if (self.watch):
+            time.sleep(2)
         shot = None
         shot_is_unverified = True
         while shot_is_unverified:
-            x_y = self.ai.get_shot(player) if player.is_ai else self.ui.get_shot(player)
-            if isinstance(x_y, bool):
-                return True
+            x_y = self.ai.get_shot(opponent) if player.is_ai else self.ui.get_shot(player)
+            is_battle_paused = isinstance(x_y, bool)
+            if is_battle_paused:
+                return is_battle_paused
             coordinates = Coordinates(x_y)
             shot = Shot(coordinates)
-            shot_is_unverified = player.grid.is_shot_already_taken(shot)
-        turn = self.record_the_shot_and_add_the_turn(player, opponent, shot)
-        return turn
-
-    def record_the_shot_and_add_the_turn(self, player: Player, opponent: Player, shot: Shot):
+            shot_is_unverified = opponent.grid.is_shot_already_taken(shot)
         shot = opponent.take_a_shot(shot)
-        p1_or_p2 = 'p1' if player == self.players[0] else 'p2'
-        ship_model = shot.model if shot.model and opponent.is_sunk(shot.model) else ''
-        player.grid.add_shot(shot)
-        self.ui.announce_hit(player, shot, p1_or_p2)
-        self.ui.announce_sunk(player, ship_model, p1_or_p2)
+        if shot.hit:
+            self.ui.announce_hit(player, shot)
+            if player.is_sunk(shot.model):
+                self.ui.announce_sunk(player, shot)
         turn = Turn(player, shot)
         self.turns.append(turn)
-        if (self.watch):
-            time.sleep(2)
         return turn
 
     def display_game_result(self):
         winner = self.players[0] if self.players[1].is_defeated() else self.players[1]
         self.ui.display_grids(winner)
         rounds = int(int(len(self.turns)+1)/2)
-        self.ui.announce_winner(winner, rounds, 'p1' if winner == self.players[0] else 'p2')
+        self.ui.announce_winner(winner, rounds)
 
 
 if __name__ == '__main__':

@@ -1,4 +1,3 @@
-from operator import ne
 import random
 from coordinates import Coordinates
 from grid import Grid
