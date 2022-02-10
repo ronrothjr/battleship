@@ -1,24 +1,27 @@
 import copy, os, re, sys, time
-from turtle import pos
-from pynput import keyboard
+from threading import Timer
+from pynput.keyboard import Key, Controller, Listener
 from functools import reduce
 from coordinates import Coordinates
 from grid import Grid
 from player import Player
-from ship import Ship
 from shot import Shot
 
 
 class UI:
 
     def __init__(self, orientation='portrait'):
-        os.system('cls')
+        self.time = 0.1
+        self.keyboard = Controller() 
         self.position = {'x': 'E', 'y': '5'}
         self.size = 10
         self.spacing = 10
         self.grid_width = 45
         self.tab = ' ' * 8
         self.orientation = orientation
+        self.single_character_input = False
+        self.silent_entry = True
+        self.accept_input = False
         self.input_buffer = ''
         self.response = ''
         self.cursor = '*'
@@ -38,8 +41,27 @@ class UI:
         }
         self.listen_for_keyboard_events()
 
+    def press(self, key):
+        self.time += 0.01
+        Timer(self.time, self.keyboard.press, ([key])).start()
+        self.time += 0.01
+        Timer(self.time, self.keyboard.release, ([key])).start()
+
+    def sequence(self, keys):
+        for key in keys:
+            self.press(key)
+
+    def set_position(self, position):
+        self.position = position
+        self.press(Key.enter)
+
+    def enter_text(self, text):
+        self.time += 0.01
+        Timer(self.time, self.keyboard.type, ([text])).start()
+        self.press(Key.enter)
+
     def listen_for_keyboard_events(self):
-        self.listener = keyboard.Listener(on_press=self.handle_keyboard_events)
+        self.listener = Listener(on_press=self.handle_keyboard_events)
         self.listener.start()
 
     def handle_keyboard_events(self, key):
@@ -47,14 +69,15 @@ class UI:
         if self.is_cursor_movement_key(entered):
             self.handle_cursor_movement(entered)
             self.display_board()
-        if re.match('^[0-9]|[a-z]|[A-Z]$', entered):
+        if re.match('^[0-9]|[a-z]|[A-Z]$', entered) and self.accept_input:
             self.input_buffer += entered
-            self.print_there(self.spacing, 0, f'{self.input_buffer}')
+            if self.single_character_input:
+                self.set_response()
+            elif not self.silent_entry:
+                self.display_input_buffer()
 
     def display_board(self):
-        if self.redisplay:
-            args = self.redisplay['args']
-            self.redisplay['grid'](**args)
+        self.display_board_callback()
 
     def is_cursor_movement_key(self, key):
         list_of_cursor_movement_keys = list(self.cursor_movement_handlers.keys())
@@ -62,8 +85,6 @@ class UI:
 
     def handle_cursor_movement(self, key):
         self.cursor_movement_handlers.get(key)()
-        if self.ship_orientation:
-            self.ship_location = Grid.get_location_coordinates(self.ship_model, self.position, self.ship_orientation)
 
     def up(self):
         x_index = Grid.x.index(self.position['x'])
@@ -86,8 +107,7 @@ class UI:
             self.position['y'] = Grid.y[y_index + 1]
 
     def enter(self):
-        self.response = copy.copy(self.input_buffer)
-        self.input_buffer = ''
+        self.set_response()
         self.display_board()
 
     def esc(self):
@@ -101,43 +121,76 @@ class UI:
         if self.ship_orientation:
             self.ship_orientation = 'h' if self.ship_orientation == 'v' else 'v'
             self.input_buffer = self.ship_orientation
-            self.print_there(self.spacing, 0, f'{self.input_buffer}')
         else:
             self.enter()
 
-    def input(self):
+    def get_name(self):
+        self.input_buffer = ''
+        prompt = self.display_output(f'What is player\'s name? ', self.grid_width)
+        self.print_there(self.spacing, 3, prompt)
+        name = self.input(accept_input=True, silent_entry=False)
+        if name == 'exit':
+            return None
+        return name
+
+    def prompt_single_character_response(self, prompt):
+        prompt = self.display_output(prompt, self.grid_width)
+        self.print_there(self.spacing, 8, f'{prompt}')
+        response = self.input(accept_input=True, single_character_input=True)
+        return response
+
+    def get_menu_choice(self, title, options):
+            x = 2
+            self.clear()
+            output = self.display_output(title, self.grid_width)
+            self.print_there(self.spacing, x, f'{output}')
+            for v in options.values():
+                x += 1
+                output = self.display_output(v['menu_choice'], self.grid_width)
+                self.print_there(self.spacing, x, f'{output}')
+            choices = [x for x in options.keys()]
+            menu_choice = None
+            while not menu_choice:
+                prompt = f'Please choose an option ({", ".join(choices)})'
+                menu_choice = self.prompt_single_character_response(prompt)
+                if menu_choice.lower() not in choices:
+                    menu_choice = None
+            return menu_choice
+
+    def input(self, accept_input: bool=False, single_character_input: bool=False, silent_entry: bool=True):
+        self.response = ''
+        self.input_loops = 0
+        self.accept_input = accept_input
+        self.single_character_input = single_character_input
+        self.silent_entry = silent_entry
         while not self.response:
-            time.sleep(0.0)
+            self.input_loops += 1
+            self.print_there(0, 0, self.input_loops)
+            time.sleep(0.1)
         response = copy.copy(self.response)
         self.response = ''
         self.print_there(0, 0, f'{" " * self.grid_width * 2}')
         return response
 
+    def display_input_buffer(self):
+        self.print_there(self.spacing, 0, f'{self.input_buffer}')
+
+    def set_response(self):
+        self.accept_input = False
+        self.response = copy.copy(self.input_buffer)
+        self.input_buffer = ''
+
     def print_there(self, x, y, text):
         sys.stdout.write("\x1b7\x1b[%d;%df%s\x1b8" % (y, x, text))
         sys.stdout.flush()
 
-    def get_name(self):
-        prompt = self.display_output(f'What is player\'s name? ', self.grid_width)
-        self.print_there(self.spacing, 3, prompt)
-        name = self.input()
-        return name
-
-    def validate_coordinates(self, text_input: str):
-        x = text_input[0:1].upper()
-        y = text_input[1:2]
-        if x in Grid.x and y in Grid.y:
-            return {'x': x, 'y': y}
-
-    def prompt_for_valid_coordinates(self):
+    def prompt_for_coordinates(self):
         coordinates = None
-        while not coordinates:
-            text_input = self.input()
-            session_cancelled = text_input.lower() in ['exit', 'e', 'quit', 'q', 'pause', 'p']
-            if session_cancelled:
-                return session_cancelled
-            text_input = f'{self.position["x"]}{self.position["y"]}'
-            coordinates = self.validate_coordinates(text_input)
+        text_input = self.input()
+        session_cancelled = text_input.lower() in ['exit', 'e', 'quit', 'q', 'pause', 'p']
+        if session_cancelled:
+            return None
+        coordinates = copy.copy(self.position)
         return coordinates
 
     def display_output(self, message: str, display_width: int=None):
@@ -157,30 +210,38 @@ class UI:
         output = self.display_output(message, self.grid_width)
         self.print_there(self.spacing, 2, output)
 
+    def set_ship_location(self):
+        self.ship_location = Grid.get_location_coordinates(self.ship_model, self.position, self.ship_orientation)
+
+    def display_board_callback(self):
+        if self.redisplay:
+            if self.ship_orientation:
+                self.set_ship_location()
+            args = self.redisplay['args']
+            self.redisplay['grid'](**args)
+
     def place_ship(self, ship_model: str, player: Player, ocean_grid: list[Coordinates], title: str):
         args = {'ocean_grid': ocean_grid, 'title': title, 'cursor': True}
         self.redisplay = {'grid': self.display_grid, 'args': args}
-        self.display_grid(**args)
         self.ship_model = ship_model
         self.ship_orientation = 'h'
         self.ship_location = Grid.get_location_coordinates(self.ship_model, self.position, self.ship_orientation)
         self.input_buffer = self.ship_orientation
-        self.print_there(self.spacing, 0, f'{self.input_buffer}')
+        self.set_ship_location()
+        self.display_grid(**args)
         self.print_there(self.spacing, 2, ' ' * 110)
         self.print_there(self.spacing, 2, f'Please press enter to place {player.name}\'s {ship_model}')
         self.print_there(self.spacing, 3, ' ' * 110)
         self.print_there(self.spacing, 3, f'Use spacebar to change orientation (horizontal or vertical)')
-        coordinates = self.prompt_for_valid_coordinates()
-        if isinstance(coordinates, bool):
-            return True, self.ship_orientation
+        coordinates = self.prompt_for_coordinates()
         orientation = copy.copy(self.ship_orientation)
+        self.print_there(self.spacing, 0, ' ' * 110)
+        self.print_there(self.spacing, 1, ' ' * 110)
+        self.print_there(self.spacing, 2, ' ' * 110)
         self.ship_model = None
         self.ship_orientation = None
         self.ship_location = None
         self.redisplay = None
-        self.print_there(self.spacing, 0, ' ' * 110)
-        self.print_there(self.spacing, 1, ' ' * 110)
-        self.print_there(self.spacing, 2, ' ' * 110)
         return coordinates, orientation
 
     def display_grid(self, ocean_grid: list[Coordinates], title: str, shots=False, offset: int=0, cursor: bool=False):
@@ -251,11 +312,11 @@ class UI:
         return contents
 
     def get_shot(self, player: Player):
+        self.input_buffer = 'shoot'
         self.print_there(self.spacing, 3, ' ' * 110)
         self.print_there(self.spacing, 3, f'Please press Enter to target {player.name}\'s opponent: ')
-        self.input_buffer = ' '
-        coordinates = self.prompt_for_valid_coordinates()
-        self.redisplay = None
+        coordinates = self.prompt_for_coordinates()
+        self.input_buffer = ''
         return coordinates
 
     def clear_announcements(self):

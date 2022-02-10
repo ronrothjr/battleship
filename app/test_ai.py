@@ -39,11 +39,12 @@ class TestAI(unittest.TestCase):
         p2 = session.players[1]
         session.place_ships(p1)
         session.place_ships(p2)
-        coordinates = p1.grid.ships[0].location[0]
+        coordinates = p2.grid.ships[0].location[0]
         shot = Shot(coordinates=coordinates)
-        p1.take_a_shot(shot)
+        p2.take_a_shot(shot)
+        p1.grid.add_shot(shot)
         all_shots_taken = p1.grid.get_all_shots_taken()
-        damaged_ship_coordinates = self.ai.get_location_of_damaged_ship(p1, all_shots_taken)
+        damaged_ship_coordinates = self.ai.get_location_of_damaged_ship(p2, all_shots_taken)
         self.assertEqual(shot.coordinates, damaged_ship_coordinates[0])
         coordinates_near_damaged_ship = self.ai.get_shot_near_damaged_ship(all_shots_taken, damaged_ship_coordinates)
         self.assertIsInstance(coordinates_near_damaged_ship, Coordinates)

@@ -20,10 +20,10 @@ class AI:
         orientation = random.choice(['h', 'v'])
         return x_y, orientation
 
-    def get_shot(self, player: Player):
+    def get_shot(self, player: Player, opponent: Player):
         shot = None
         all_shots_taken = player.grid.get_all_shots_taken()
-        damaged_ship_coordinates = self.get_location_of_damaged_ship(player, all_shots_taken)
+        damaged_ship_coordinates = self.get_location_of_damaged_ship(opponent, all_shots_taken)
         if damaged_ship_coordinates:
             coordinates = self.get_shot_near_damaged_ship(all_shots_taken, damaged_ship_coordinates)
             if coordinates:
@@ -32,10 +32,10 @@ class AI:
             shot = self.get_random_shot(all_shots_taken)
         return shot
 
-    def get_location_of_damaged_ship(self, player: Player, all_shots_taken: list[Coordinates]):
+    def get_location_of_damaged_ship(self, opponent: Player, all_shots_taken: list[Coordinates]):
         damaged_ship_coordinates = []
         for coordinates in all_shots_taken:
-            if coordinates.hit and not player.is_sunk(coordinates.model):
+            if coordinates.hit and not opponent.is_sunk(coordinates.model):
                 damaged_ship_coordinates.append(coordinates)
         return damaged_ship_coordinates
 

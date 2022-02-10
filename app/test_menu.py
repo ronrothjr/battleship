@@ -12,9 +12,7 @@ from files_mock import FilesMock
 class TestMenu(unittest.TestCase):
 
     def setUp(self) -> None:
-        data_store = Data(FilesMock())
-        game = Game(data_store=data_store)
-        self.menu = Menu(game=game)
+        self.menu = Menu(game=Game(data_store=Data(FilesMock())))
 
     def test_can_instantiate_a_menu(self):
         self.assertIsInstance(self.menu, Menu)
@@ -36,14 +34,14 @@ class TestMenu(unittest.TestCase):
 
     @patch('sys.stdout', new_callable=io.StringIO)
     def test_can_display_main_menu(self, mock_stdout):
-        data_store = Data(FilesMock())
-        game = Game(data_store=data_store)
-        menu = Menu(game=game)
-        fake_input = mock.Mock(side_effect=['E'])
-        with patch('builtins.input', fake_input):
-            menu.display_main_menu()
-            output = mock_stdout.getvalue()
-            self.assertEqual(output, f'\t{" " * 18}Main Menu\n\t{" " * 16}(P)lay a Game\n\t{" " * 16}(L)oad a Game\n\t{" " * 19}(E)xit\n')
+        menu = Menu(game=Game(data_store=Data(FilesMock())))
+        self.menu.ui.enter_text('E')
+        menu.display_main_menu()
+        output = mock_stdout.getvalue()
+        self.assertIn('Main Menu', output)
+        self.assertIn('(P)lay a Game', output)
+        self.assertIn('(L)oad a Game', output)
+        self.assertIn('(E)xit', output)
 
     @patch('sys.stdout', new_callable=io.StringIO)
     def test_can_display_load_game_menu(self, mock_stdout):

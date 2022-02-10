@@ -1,4 +1,4 @@
-import unittest
+import json, unittest
 from session import Session
 from game import Game
 from data import Data
@@ -24,21 +24,25 @@ class TestGame(unittest.TestCase):
     def test_can_encode_game_to_save(self):
         session = Session()
         encoded_game = self.game.encode_game(session)
-        del encoded_game['timestamp']
-        self.assertEqual(encoded_game, {"watch": False, "ai": {}, "ui": {"spacing": 10, "grid_width": 45, "orientation": "portrait"}, "players": [], "turns": []})
+        self.assertEqual(list(encoded_game.keys()), ['timestamp', 'watch', 'players', 'turns'])
 
     def test_can_save_a_game(self):
         session = Session()
+        timestamp = session.timestamp
         game_saved = self.game.save_a_game(session)
         self.assertTrue(game_saved)
-        games = self.game.data_store.files.files['games.txt']
-        self.assertIn('"watch": false, "ai": {}, "ui": {"spacing": 10, "grid_width": 45, "orientation": "portrait"}, "players": [], "turns": []', games)
+        games = json.loads(self.game.data_store.files.files['games.txt'])
+        game = games[timestamp]
+        self.assertEqual(list(game.keys()), ['timestamp', 'watch', 'players', 'turns'])
 
     def test_can_load_a_game(self):
-        game_str = '[{"watch": false, "ai": {}, "ui": {"spacing": 10, "grid_width": 45, "orientation": "portrait"}, "players": [], "turns": []}]'
+        session = Session()
+        timestamp = session.timestamp
+        game_str = '{"' + timestamp + '": {"timestamp": "' + timestamp + '", "watch": false, "players": [], "turns": []}}'
         self.game.data_store.files.files['games.txt'] = game_str
         games = self.game.load_a_game()
-        self.assertEqual(games, [{"watch": False, "ai": {}, "ui": {"spacing": 10, "grid_width": 45, "orientation": "portrait"}, "players": [], "turns": []}])
+        game = games[timestamp]
+        self.assertEqual(list(game.keys()), ['timestamp', 'watch', 'players', 'turns'])
 
 
 if __name__ == '__main__':

@@ -45,24 +45,10 @@ class TestGrid(unittest.TestCase):
     def test_grid_can_mark_shot_and_set_the_shot_as_a_hit(self):
         ship1 = Ship('Destroyer')
         ship1.set_location([Coordinates({'x': 'E', 'y': '5'}), Coordinates({'x': 'E', 'y': '6'})])
-        added = self.grid.add_ship(ship1)
+        self.grid.add_ship(ship1)
         shot = Shot(Coordinates({'x': 'E', 'y': '5'}))
         self.grid.mark_shot(shot)
-        self.assertEqual(len(self.grid.shots), 1)
         self.assertTrue(shot.hit)
-
-    def test_grid_cannot_mark_shot_that_was_already_marked(self):
-        ship1 = Ship('Destroyer')
-        ship1.set_location([Coordinates({'x': 'E', 'y': '5'}), Coordinates({'x': 'E', 'y': '6'})])
-        added = self.grid.add_ship(ship1)
-        shot1 = Shot(Coordinates({'x': 'E', 'y': '5'}))
-        shot_taken = self.grid.mark_shot(shot1)
-        self.assertTrue(shot_taken)
-        self.assertEqual(len(self.grid.shots), 1)
-        shot2 = Shot(Coordinates({'x': 'E', 'y': '5'}))
-        shot_taken = self.grid.mark_shot(shot2)
-        self.assertFalse(shot_taken)
-        self.assertEqual(len(self.grid.shots), 1)
 
 
 if __name__ == '__main__':

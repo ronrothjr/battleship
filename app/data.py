@@ -2,6 +2,7 @@ import json
 from abc import ABCMeta, abstractmethod
 from files import FilesInterface
 from files import Files
+from ai import AI
 from ui import UI
 
 class DataInterface(metaclass=ABCMeta):
@@ -49,7 +50,7 @@ class Data(DataInterface):
                 data_dict[k] = v
             elif isinstance(v, list):
                 data_dict[k] = [Data.get_object_dict(item) for item in v]
-            elif not isinstance(v, (Data, UI)):
+            elif not isinstance(v, (Data, UI, AI)):
                 data_dict[k] = Data.get_object_dict(v)
         return data_dict
 
