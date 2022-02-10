@@ -15,7 +15,7 @@ class AI:
         [[grid.append({'x': x, 'y': y}) for x in Grid.x if {'x': x, 'y': y} not in x_y_taken] for y in Grid.y]
         return grid
 
-    def place_ship(self, model: str, player: Player):
+    def place_ship(self):
         x_y = random.choice(self.get_grid())
         orientation = random.choice(['h', 'v'])
         return x_y, orientation

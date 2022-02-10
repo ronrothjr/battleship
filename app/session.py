@@ -69,7 +69,7 @@ class Session:
             self.ui.display_grid(ocean_grid, 'Ocean Grid')
             ship_added = False
             while not ship_added:
-                x_y, orientation = self.ai.place_ship(model, player) if player.is_ai else self.ui.place_ship(model, player, ocean_grid, 'Ocean Grid')
+                x_y, orientation = self.ai.place_ship() if player.is_ai else self.ui.place_ship(model, player, ocean_grid, 'Ocean Grid')
                 location = Grid.get_location_coordinates(model, x_y, orientation)
                 if not location:
                     if not player.is_ai:
