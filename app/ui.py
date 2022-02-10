@@ -133,8 +133,9 @@ class UI:
         coordinates = None
         while not coordinates:
             text_input = self.input()
-            if text_input.lower() in ['exit', 'e', 'quit', 'q', 'pause', 'p']:
-                return True
+            session_cancelled = text_input.lower() in ['exit', 'e', 'quit', 'q', 'pause', 'p']
+            if session_cancelled:
+                return session_cancelled
             text_input = f'{self.position["x"]}{self.position["y"]}'
             coordinates = self.validate_coordinates(text_input)
         return coordinates
@@ -146,7 +147,8 @@ class UI:
         return f'{self.tab}{output}'
 
     def center(self, message: str, display_width: int):
-        padding = int( ( display_width - len(message) ) / 2) if display_width - len(message) > 0 else 0
+        is_text_fitting_in_display = display_width - len(message) > 0
+        padding = int( (display_width - len(message)) / 2) if is_text_fitting_in_display else 0
         centered = (' ' * padding) + message
         return centered
 
