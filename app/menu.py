@@ -32,7 +32,7 @@ class Menu:
             option['action']()
 
     def play_a_game(self):
-        game = Session(self.ui).play_a_game()
+        game = Session(self.ui).play_a_new_game()
         if game:
             self.game.save_a_game(game)
 

@@ -1,3 +1,4 @@
+from cgi import test
 import copy, os, re, sys, time
 from threading import Timer
 from pynput.keyboard import Key, Controller, Listener
@@ -122,6 +123,7 @@ class UI:
 
     def clear(self):
         os.system('cls')
+        self.redisplay = None
 
     def spacebar(self):
         if self.ship_orientation:
@@ -141,12 +143,12 @@ class UI:
 
     def prompt_single_character_response(self, prompt):
         prompt = self.display_output(prompt, self.grid_width)
-        self.print_there(self.spacing, 8, f'{prompt}')
+        self.print_there(self.spacing, 1, f'{prompt}')
         response = self.input(accept_input=True, single_character_input=True)
         return response
 
     def get_menu_choice(self, title, options):
-            x = 2
+            x = 3
             self.clear()
             output = self.display_output(title, self.grid_width)
             self.print_there(self.spacing, x, f'{output}')
@@ -346,3 +348,5 @@ class UI:
         self.print_there(self.spacing + (54 if p1_or_p2 == 'p2' else 0), 22, text)
         text = self.display_output(f'(in {rounds} rounds)')
         self.print_there(self.spacing + (54 if p1_or_p2 == 'p2' else 0), 23, text)
+        self.input_buffer = test
+        self.input()
