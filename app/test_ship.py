@@ -3,7 +3,7 @@ from coordinates import Coordinates
 from ship import Ship
 
 
-class TestShot(unittest.TestCase):
+class TestShip(unittest.TestCase):
 
     def setUp(self) -> None:
         self.ship = Ship('Destroyer')

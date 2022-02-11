@@ -26,7 +26,7 @@ class TestAI(unittest.TestCase):
         self.assertTrue(callable(self.ai.add_nearby_coordinates))
 
     def test_ai_can_return_a_random_set_of_x_y_coordinates_excluding_previous_shots(self):
-        x_y = self.ai.get_shot(Player())
+        x_y = self.ai.get_shot(Player(), Player())
         self.assertIsInstance(x_y, dict)
         self.assertIsInstance(x_y['x'], str)
         self.assertIsInstance(x_y['y'], str)

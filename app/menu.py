@@ -68,16 +68,6 @@ class Menu:
                 x += 1
         return options
 
-    def get_loaded_game_choice(self, keys):
-        game_choice = None
-        while not game_choice:
-            prompt = self.ui.display_output(f'Please choose a game (0-{len(keys) + 1})', 45)
-            self.ui.print_there(self.ui.spacing, 2, f'{prompt}')
-            game_choice = self.ui.input(single_character_input=True)
-            if int(game_choice) not in range(0, len(keys) + 2):
-                game_choice = None
-        return int(game_choice)
-
     def play_a_saved_game(self, game):
             session = Session(self.ui)
             session.load_a_saved_game(game)

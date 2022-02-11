@@ -10,7 +10,6 @@ class Game:
 
     def encode_game(self, game_data):
         game = Data.get_object_dict(object_to_dict=game_data)
-        del game['data']
         return game
 
     def save_a_game(self, game_data):

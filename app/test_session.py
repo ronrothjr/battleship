@@ -58,7 +58,7 @@ class TestSession(unittest.TestCase):
         self.assertTrue(callable(self.session.take_a_turn))
 
     @patch('sys.stdout', new_callable=io.StringIO)
-    def test_can_add_a_player(self):
+    def test_can_add_a_player(self, mock_stdout):
         self.add_players()
         self.assertEqual(len(self.session.players), 2)
 
