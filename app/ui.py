@@ -165,13 +165,10 @@ class UI:
 
     def input(self, accept_input: bool=False, single_character_input: bool=False, silent_entry: bool=True):
         self.response = ''
-        self.input_loops = 0
         self.accept_input = accept_input
         self.single_character_input = single_character_input
         self.silent_entry = silent_entry
         while not self.response:
-            self.input_loops += 1
-            self.print_there(0, 0, self.input_loops)
             time.sleep(0.1)
         response = copy.copy(self.response)
         self.response = ''
