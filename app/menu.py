@@ -19,6 +19,10 @@ class Menu:
                 'menu_choice': '(L)oad a Game',
                 'action': self.load_a_game
             },
+            'w': {
+                'menu_choice': '(W)atch a Game',
+                'action': self.watch_a_game
+            },
             'e': {
                 'menu_choice': '(E)xit',
                 'action': lambda: True
@@ -47,6 +51,9 @@ class Menu:
         else:
             option = options[menu_choice.lower()]
             option['action'](menu_choice)
+
+    def watch_a_game(self):
+        Session(self.ui).play_a_new_game(ai_v_ai=True, watch=True)
 
     def get_game_choices(self, games):
         options = {'0': {'menu_choice': '(0) - Exit to Main Menu', 'action': lambda x: True}}
