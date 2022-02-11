@@ -62,9 +62,9 @@ class Session:
         if ready_to_play:
             self.ui.clear()
             is_battle_paused = self.battle_until_one_is_defeated()
-            if not is_battle_paused:
-                self.display_game_result()
-        return self
+            if is_battle_paused:
+                return self
+            self.display_game_result()
 
     def add_a_player(self, player: Player):
         if not player.is_ai:

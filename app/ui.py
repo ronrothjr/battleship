@@ -159,7 +159,7 @@ class UI:
             choices = [x for x in options.keys()]
             menu_choice = None
             while not menu_choice:
-                prompt = f'Please choose an option ({", ".join(choices)})'
+                prompt = f'Please choose an option:'
                 menu_choice = self.prompt_single_character_response(prompt)
                 if menu_choice.lower() not in choices:
                     menu_choice = None

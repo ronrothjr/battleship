@@ -13,12 +13,13 @@ class Game:
         return game
 
     def save_a_game(self, game_data):
-        game = self.encode_game(game_data)
-        games = self.data_store.load_records('games')
-        timestamp = game.get('timestamp', datetime.datetime.today().strftime("%Y%m%d%H%M%S"))
-        games[timestamp] = game
-        self.data_store.save_records('games', games)
-        return True
+        if game_data and len(game_data.players) > 0 and len(game_data.turns) > 0:
+            game = self.encode_game(game_data)
+            games = self.data_store.load_records('games')
+            timestamp = game.get('timestamp', datetime.datetime.today().strftime("%Y%m%d%H%M%S"))
+            games[timestamp] = game
+            self.data_store.save_records('games', games)
+            return True
 
     def load_a_game(self):
         games = self.data_store.load_records('games')
