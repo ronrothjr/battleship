@@ -12,3 +12,6 @@ class Shot:
             self.coordinates = coordinates
             self.hit = hit
             self.model = ''
+
+    def __eq__(self, other):
+        return self.coordinates.x == other.coordinates.x and self.coordinates.y == other.coordinates.y

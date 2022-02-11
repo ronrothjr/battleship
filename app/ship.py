@@ -25,6 +25,13 @@ class Ship:
             self.location = []
             self.sunk = False
 
+    def __eq__(self, other):
+        is_equal = True
+        for x in range(0, len(self.location)):
+            if self.location[x].x != other.location[x].x or self.location[x].y != other.location[x].y:
+                is_equal = False
+        return is_equal
+
     def set_location(self, location: list[Coordinates]) -> bool:
         if len(location) == self.size:
             self.location = location

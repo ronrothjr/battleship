@@ -11,7 +11,7 @@ from shot import Shot
 class UI:
 
     def __init__(self, orientation='portrait'):
-        self.time = 0.1
+        self.time = 0.2
         self.keyboard = Controller() 
         self.position = {'x': 'E', 'y': '5'}
         self.size = 10
@@ -42,9 +42,9 @@ class UI:
         self.listen_for_keyboard_events()
 
     def press(self, key):
-        self.time += 0.01
+        self.time += 0.05
         Timer(self.time, self.keyboard.press, ([key])).start()
-        self.time += 0.01
+        self.time += 0.05
         Timer(self.time, self.keyboard.release, ([key])).start()
 
     def sequence(self, keys):
@@ -56,9 +56,15 @@ class UI:
         self.press(Key.enter)
 
     def enter_text(self, text):
-        self.time += 0.01
+        self.time += 0.05
         Timer(self.time, self.keyboard.type, ([text])).start()
         self.press(Key.enter)
+
+    def enter_words(self, words):
+        for word in words:
+            self.time += 0.05
+            Timer(self.time, self.keyboard.type, ([word])).start()
+            self.press(Key.enter)
 
     def listen_for_keyboard_events(self):
         self.listener = Listener(on_press=self.handle_keyboard_events)
