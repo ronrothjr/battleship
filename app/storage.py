@@ -3,7 +3,7 @@ from data import Data
 from files import Files
 
 
-class Game:
+class Storage:
 
     def __init__(self, data_store: Data=None) -> None:
         self.data_store = data_store if data_store else Data(Files())

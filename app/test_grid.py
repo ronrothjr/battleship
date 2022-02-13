@@ -1,4 +1,4 @@
-import copy, unittest
+import unittest
 from coordinates import Coordinates
 from grid import Grid
 from ship import Ship

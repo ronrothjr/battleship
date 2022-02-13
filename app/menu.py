@@ -1,13 +1,12 @@
-from time import time
-from game import Game
+from storage import Storage
 from session import Session
 from ui import UI
 
 
 class Menu:
 
-    def __init__(self, game: Game=None) -> None:
-        self.game = game if game else Game()
+    def __init__(self, game: Storage=None) -> None:
+        self.storage = game if game else Storage()
         self.ui = UI()
         self.options = {
             'p': {
@@ -34,10 +33,10 @@ class Menu:
     def play_a_game(self):
         game = Session(self.ui).play_a_game()
         if game:
-            self.game.save_a_game(game)
+            self.storage.save_a_game(game)
 
     def load_a_game(self):
-        games = self.game.load_a_game()
+        games = self.storage.load_a_game()
         options = self.get_game_choices(games)
         menu_choice = ''
         menu_choice = self.ui.get_menu_choice('Saved Games', options)
@@ -50,7 +49,7 @@ class Menu:
             game_to_play = games[timestamp]
             game = self.play_a_saved_game(game_to_play)
             if game: 
-                self.game.save_a_game(game)
+                self.storage.save_a_game(game)
 
     def get_game_choices(self, games):
         options = {'0': {'menu_choice': '(0) - Exit to Main Menu', 'action': lambda x: True}}
