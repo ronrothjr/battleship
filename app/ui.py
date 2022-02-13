@@ -377,5 +377,5 @@ class UI:
         self.print_there(self.spacing + (54 if p1_or_p2 == 'p2' else 0), 22, text)
         text = self.display_output(f'(in {rounds} rounds)')
         self.print_there(self.spacing + (54 if p1_or_p2 == 'p2' else 0), 23, text)
-        self.input_buffer = test
+        self.input_buffer = text
         self.input()
