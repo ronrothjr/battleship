@@ -1,7 +1,6 @@
 import datetime, time
 from ai import AI
 from coordinates import Coordinates
-from game import Game
 from grid import Grid
 from player import Player
 from ship import Ship
