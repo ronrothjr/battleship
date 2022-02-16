@@ -17,6 +17,10 @@ class Menu:
                 'menu_choice': '(L)oad a Game',
                 'action': self.load_a_game
             },
+            'w': {
+                'menu_choice': '(W)atch a Game',
+                'action': self.watch_a_game
+            },
             'e': {
                 'menu_choice': '(E)xit',
                 'action': lambda: True
@@ -31,7 +35,7 @@ class Menu:
             option['action']()
 
     def play_a_game(self):
-        game = Session(self.ui).play_a_game()
+        game = Session(self.ui).play_a_new_game()
         if game:
             self.storage.save_a_game(game)
 
@@ -43,13 +47,11 @@ class Menu:
         if menu_choice == '0':
             return
         else:
-            keys = list(games.keys())
-            key_index = int(menu_choice) - 1
-            timestamp = keys[key_index]
-            game_to_play = games[timestamp]
-            game = self.play_a_saved_game(game_to_play)
-            if game: 
-                self.storage.save_a_game(game)
+            option = options[menu_choice.lower()]
+            option['action'](menu_choice)
+
+    def watch_a_game(self):
+        Session(self.ui).play_a_new_game(ai_v_ai=True, watch=True)
 
     def get_game_choices(self, games):
         options = {'0': {'menu_choice': '(0) - Exit to Main Menu', 'action': lambda x: True}}
@@ -63,14 +65,19 @@ class Menu:
                 p1 = game["players"][0]["name"]
                 p2 = game["players"][1]["name"]
                 item = f'({x}) - {p1} v {p2} ({timestamp})'
-                options[str(x)] = {'menu_choice': item, 'action': lambda x: True}
+                options[str(x)] = {
+                    'menu_choice': item,
+                    'action': lambda x: self.play_a_saved_game(games[timestamp])
+                }
                 x += 1
         return options
 
     def play_a_saved_game(self, game):
             session = Session(self.ui)
             session.load_a_saved_game(game)
-            return session.play_a_loaded_game()
+            game = session.play_a_loaded_game()
+            if game: 
+                self.game.save_a_game(game)
 
 if __name__ == '__main__':
     Menu().display_main_menu()

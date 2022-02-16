@@ -19,7 +19,11 @@ class Session:
         self.players = []
         self.turns = []
 
-    def play_a_game(self, ai_v_ai=False, watch=False, orientation='portrait'):
+    def play_a_new_game(self, ai_v_ai=False, watch=False, orientation='portrait'):
+        ready_to_play = self.setup_new_game(ai_v_ai, watch, orientation)
+        return self.play_a_loaded_game(ready_to_play)
+
+    def setup_new_game(self, ai_v_ai=False, watch=False, orientation='portrait'):
         self.ui.clear()
         self.watch = watch
         self.ui.orientation = orientation
@@ -32,9 +36,7 @@ class Session:
             added = self.place_ships(player)
             if not added:
                 return None
-        self.battle_until_one_is_defeated()
-        self.display_game_result()
-        return self
+        return True
 
     def load_a_saved_game(self, game):
         self.timestamp = game['timestamp']
@@ -55,11 +57,13 @@ class Session:
             self.turns.append(Turn(load=t))
         return self
 
-    def play_a_loaded_game(self):
-        self.ui.clear()
-        self.battle_until_one_is_defeated()
-        self.display_game_result()
-        return self
+    def play_a_loaded_game(self, ready_to_play: bool=True):
+        if ready_to_play:
+            self.ui.clear()
+            is_battle_paused = self.battle_until_one_is_defeated()
+            if is_battle_paused:
+                return self
+            self.display_game_result()
 
     def add_a_player(self, player: Player):
         if not player.is_ai:
@@ -95,6 +99,7 @@ class Session:
         while not is_battle_decided and not battle_is_paused:
             battle_is_paused = self.play_a_round()
             is_battle_decided = list(filter(lambda player: player.is_defeated(), self.players))
+        return battle_is_paused
 
     def play_a_round(self):
         battle_is_paused = False
@@ -156,4 +161,4 @@ class Session:
 
 
 if __name__ == '__main__':
-    Session().play_a_game(ai_v_ai=True, watch=True, orientation='portrait')
+    Session().play_a_new_game(ai_v_ai=True, watch=True, orientation='portrait')

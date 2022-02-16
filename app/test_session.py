@@ -38,8 +38,8 @@ class TestSession(unittest.TestCase):
         self.assertIsInstance(self.session.ai, AI)
         self.assertIsInstance(self.session.players, list)
         self.assertIsInstance(self.session.turns, list)
-        self.assertEqual(self.session.play_a_game.__name__, 'play_a_game') 
-        self.assertTrue(callable(self.session.play_a_game))
+        self.assertEqual(self.session.play_a_new_game.__name__, 'play_a_new_game') 
+        self.assertTrue(callable(self.session.play_a_new_game))
         self.assertEqual(self.session.load_a_saved_game.__name__, 'load_a_saved_game') 
         self.assertTrue(callable(self.session.load_a_saved_game))
         self.assertEqual(self.session.play_a_loaded_game.__name__, 'play_a_loaded_game') 
@@ -147,7 +147,7 @@ class TestSession(unittest.TestCase):
 
     @patch('sys.stdout', new_callable=io.StringIO)
     def test_session_can_play_an_ai_game_by_itself(self, mock_stdout):
-        self.session.play_a_game(ai_v_ai=True)
+        self.session.play_a_new_game(ai_v_ai=True)
         output = mock_stdout.getvalue()
         self.assertIn('AI is victorious!', output)
 

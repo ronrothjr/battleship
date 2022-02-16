@@ -56,7 +56,7 @@ class TestMenu(unittest.TestCase):
     def test_can_display_load_game_menu_and_play_a_game(self, mock_stdout):
         game = Game(data_store=Data(FilesMock()))
         def replace_play_a_game(x):
-            game_result = Session().play_a_game(ai_v_ai=True)
+            game_result = Session().play_a_new_game(ai_v_ai=True)
             game.save_a_game(game_result)
         with mock.patch.object(Menu, 'play_a_game', replace_play_a_game):
             menu = Menu(game=game)

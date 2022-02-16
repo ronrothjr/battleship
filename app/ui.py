@@ -7,7 +7,13 @@ from grid import Grid
 from player import Player
 from shot import Shot
 
+if os.name == 'nt':
+    import msvcrt
+    import ctypes
 
+    class _CursorInfo(ctypes.Structure):
+        _fields_ = [("size", ctypes.c_int),
+                    ("visible", ctypes.c_byte)]
 class UI:
 
     def __init__(self, orientation='portrait'):
@@ -40,6 +46,29 @@ class UI:
             'Key.space': self.spacebar
         }
         self.listen_for_keyboard_events()
+        self.hide_cursor()
+
+    def hide_cursor(self):
+        if os.name == 'nt':
+            ci = _CursorInfo()
+            handle = ctypes.windll.kernel32.GetStdHandle(-11)
+            ctypes.windll.kernel32.GetConsoleCursorInfo(handle, ctypes.byref(ci))
+            ci.visible = False
+            ctypes.windll.kernel32.SetConsoleCursorInfo(handle, ctypes.byref(ci))
+        elif os.name == 'posix':
+            sys.stdout.write("\033[?25l")
+            sys.stdout.flush()
+
+    def show_cursor(self):
+        if os.name == 'nt':
+            ci = _CursorInfo()
+            handle = ctypes.windll.kernel32.GetStdHandle(-11)
+            ctypes.windll.kernel32.GetConsoleCursorInfo(handle, ctypes.byref(ci))
+            ci.visible = True
+            ctypes.windll.kernel32.SetConsoleCursorInfo(handle, ctypes.byref(ci))
+        elif os.name == 'posix':
+            sys.stdout.write("\033[?25h")
+            sys.stdout.flush()
 
     def press(self, key):
         self.time += 0.05
@@ -122,6 +151,7 @@ class UI:
 
     def clear(self):
         os.system('cls')
+        self.redisplay = None
 
     def spacebar(self):
         if self.ship_orientation:
@@ -141,12 +171,12 @@ class UI:
 
     def prompt_single_character_response(self, prompt):
         prompt = self.display_output(prompt, self.grid_width)
-        self.print_there(self.spacing, 8, f'{prompt}')
+        self.print_there(self.spacing, 1, f'{prompt}')
         response = self.input(accept_input=True, single_character_input=True)
         return response
 
     def get_menu_choice(self, title, options):
-            x = 2
+            x = 3
             self.clear()
             output = self.display_output(title, self.grid_width)
             self.print_there(self.spacing, x, f'{output}')
@@ -157,7 +187,7 @@ class UI:
             choices = [x for x in options.keys()]
             menu_choice = None
             while not menu_choice:
-                prompt = f'Please choose an option ({", ".join(choices)})'
+                prompt = f'Please choose an option:'
                 menu_choice = self.prompt_single_character_response(prompt)
                 if menu_choice.lower() not in choices:
                     menu_choice = None
@@ -176,7 +206,8 @@ class UI:
         return response
 
     def display_input_buffer(self):
-        self.print_there(self.spacing, 0, f'{self.input_buffer}')
+        input_buffer = self.display_output(self.input_buffer, self.grid_width)
+        self.print_there(self.spacing, 0, input_buffer)
 
     def set_response(self):
         self.accept_input = False
@@ -346,3 +377,5 @@ class UI:
         self.print_there(self.spacing + (54 if p1_or_p2 == 'p2' else 0), 22, text)
         text = self.display_output(f'(in {rounds} rounds)')
         self.print_there(self.spacing + (54 if p1_or_p2 == 'p2' else 0), 23, text)
+        self.input_buffer = text
+        self.input()
