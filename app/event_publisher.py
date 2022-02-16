@@ -1,3 +1,5 @@
+import pygame
+from ctypes import Union
 from inspect import signature
 
 
@@ -31,7 +33,13 @@ class EventPublisher:
             handlers.append(handler)
             self.subscribers[event_type] = handlers
 
-    def on_event(self, event, game):
+    def add_listeners(self, listeners: list[dict]):
+        if not isinstance(listeners, list):
+            raise TypeError('listeners must be a list of dict')
+        for listener in listeners:
+            self.add_listener(listener)
+
+    def on_event(self, event: pygame.event.Event, game: pygame):
         print(event)
         if event.type in self.subscribers.keys():
             for handler in self.subscribers[event.type]:
