@@ -1,6 +1,16 @@
+import sys, os
 from pygame.locals import *
 from event_publisher import EventPublisher
 
+
+def resource_path(relative_path):
+    try:
+    # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 class Game():
 
@@ -29,7 +39,7 @@ class Game():
 
     def on_start(self):
         self.screen = self.pygame.display.set_mode(self.size, NOFRAME, FULLSCREEN)
-        self.image = self.pygame.image.load('battleship.jpeg').convert()
+        self.image = self.pygame.image.load(resource_path(os.path.join('images', 'battleship.jpeg'))).convert()
         self.publisher.add_listener({QUIT: self.on_exit})
         self.publisher.add_listener({KEYDOWN: self.on_key_down})
 
