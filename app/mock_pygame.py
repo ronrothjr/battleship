@@ -30,8 +30,9 @@ class MockImage:
         return MockLoadedImage(file_name)
 
 class Event:
-    def __init__(self, event_type: int):
-        self.type = event_type
+    def __init__(self, type: int, key: int):
+        self.type = type
+        self.key = key
     def __str__(self):
         return str(self.__dict__)
 

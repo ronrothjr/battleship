@@ -5,17 +5,17 @@ import asset_utils
 
 class Game():
 
-    def __init__(self, pygame: pygame):
-        self.pygame = pygame
+    def __init__(self, pg: pygame):
+        self.pg = pg
         self._running = True
         self.screen = None
-        self.image = None
+        self.surface = None
         self.size = self.width, self.height = 756, 755
-        self.publisher = EventPublisher()
+        self.publisher = EventPublisher([{QUIT: self.on_exit}]).on_load()
         self.on_init()
 
     def on_init(self) -> bool:
-        self.pygame.init()
+        self.pg.init()
         self._running = True
 
     def start(self):
@@ -25,31 +25,30 @@ class Game():
 
     def event_loop(self):
         while self._running:
-            events = self.pygame.event.get()
+            events = self.pg.event.get()
             for event in events:
-                self.publisher.on_event(event=event, game=self.pygame)
+                self.publisher.on_event(event=event, game=self.pg)
             self.on_loop()
             self.on_render()
 
     def on_start(self):
-        self.screen = self.pygame.display.set_mode(self.size, NOFRAME, FULLSCREEN)
+        self.screen = self.pg.display.set_mode(self.size, NOFRAME, FULLSCREEN)
         image_path = asset_utils.resource_path('assets', 'images', 'battleship.jpeg')
-        self.surface = self.pygame.image.load(image_path).convert()
+        self.surface = self.pg.image.load(image_path).convert()
         self.screen.blit(self.surface, (0,0))
-        self.publisher.add_listeners([{QUIT: self.on_exit}, {KEYDOWN: self.on_key_down}])
 
     def on_exit(self, event: pygame.event.Event, game: pygame):
         self._running = False
 
     def on_key_down(self, event: pygame.event.Event, game: pygame):
-        if event.key == K_ESCAPE:
-            game.event.post(game.event.Event(QUIT))
+        if event.key == game.K_ESCAPE:
+            game.event.post(game.event.Event(game.QUIT))
 
     def on_loop(self):
         pass
 
     def on_render(self):
-        self.pygame.display.flip()
+        self.pg.display.flip()
 
     def on_cleanup(self):
-        self.pygame.quit()
+        self.pg.quit()
