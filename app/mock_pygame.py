@@ -30,9 +30,8 @@ class MockImage:
         return MockLoadedImage(file_name)
 
 class Event:
-    def __init__(self, type: int, key: int):
+    def __init__(self, type: int):
         self.type = type
-        self.key = key
     def __str__(self):
         return str(self.__dict__)
 
@@ -49,6 +48,12 @@ class MockEvent:
         self.queue.append(event)
 
 class MockPygame:
+
+    FULLSCREEN = 1
+    NOFRAME = 2
+    QUIT = 123
+    KEYDOWN = 576
+    K_ESCAPE = 27
 
     event = MockEvent()
 

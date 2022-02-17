@@ -1,5 +1,5 @@
-import pygame, threading, unittest
-from pygame.locals import *
+# import pygame
+import threading, unittest
 from game import Game
 from mock_pygame import MockPygame, MockDisplaySurface, MockImageSurface
 
@@ -8,8 +8,9 @@ class TestGame(unittest.TestCase):
 
     def setUp(self) -> None:
         self.game = Game(MockPygame())
+        # self.game = Game(pygame)
         self.assertTrue(self.game._running)
-        threading.Timer(0.1, self.game.pg.event.post, [self.game.pg.event.Event(type=QUIT, key=K_ESCAPE)]).start()
+        threading.Timer(0.1, self.game.pg.event.post, [self.game.pg.event.Event(self.game.pg.QUIT)]).start()
         self.game.start()
 
     def tearDown(self) -> None:

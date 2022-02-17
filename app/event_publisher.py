@@ -57,7 +57,8 @@ class EventPublisher:
         for name in [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]:
             found_module = imp.find_module(name[:-3], [path])
             module = imp.load_module(name, *found_module)
-            for mem_name, obj in inspect.getmembers(module):
-                if inspect.isclass(obj) and inspect.getmodule(obj) is module:
+            for obj in [obj for mem_name, obj in inspect.getmembers(module)]:
+                if inspect.isclass(obj):
                     self.add_listeners(obj.add())
+            found_module[0].close()
         return self
