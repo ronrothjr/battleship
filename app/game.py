@@ -1,28 +1,36 @@
+import os
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
 from event_publisher import EventPublisher
-import asset_utils
+from director import Director
+from asset_utils import AssetUtils
+from scenes.settings import settings
+
 
 class Game():
 
     def __init__(self, pg: pygame):
         self.pg = pg
-        self._running = True
-        self.screen = None
-        self.surface = None
-        self.size = self.width, self.height = 756, 755
-        self.publisher = EventPublisher([{self.pg.QUIT: self.on_exit}]).on_load()
-        self.on_init()
+        self._running = False
+        self.director = None
+        self.publisher = None
 
-    def on_init(self) -> bool:
+    def on_init(self, settings: dict) -> 'Game':
+        self.director = Director(self.pg, settings)
+        self.publisher = EventPublisher({self.pg.QUIT: self.on_exit})
         self.pg.init()
         self._running = True
+        return self
 
-    def start(self):
+    def start(self) -> None:
         self.on_start()
         self.event_loop()
         self.on_cleanup()
 
-    def event_loop(self):
+    def on_start(self) -> None:
+        self.director.call('splash')
+
+    def event_loop(self) -> None:
         while self._running:
             events = self.pg.event.get()
             for event in events:
@@ -30,20 +38,14 @@ class Game():
             self.on_loop()
             self.on_render()
 
-    def on_start(self):
-        self.screen = self.pg.display.set_mode(self.size, self.pg.NOFRAME, self.pg.FULLSCREEN)
-        image_path = asset_utils.resource_path('assets', 'images', 'battleship.jpeg')
-        self.surface = self.pg.image.load(image_path).convert()
-        self.screen.blit(self.surface, (0,0))
+    def on_cleanup(self) -> None:
+        self.pg.quit()
 
-    def on_exit(self, event: pygame.event.Event, game: pygame):
+    def on_exit(self, event: pygame.event.Event, game: pygame) -> None:
         self._running = False
 
-    def on_loop(self):
+    def on_loop(self) -> None:
         pass
 
-    def on_render(self):
+    def on_render(self) -> None:
         self.pg.display.flip()
-
-    def on_cleanup(self):
-        self.pg.quit()

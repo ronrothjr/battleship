@@ -5,7 +5,7 @@ class MockLoadedImage:
         self.file_name = file_name
 
     def convert(self):
-        pass
+        return self
 
 class MockImageSurface:
     pass
@@ -57,9 +57,8 @@ class MockPygame:
 
     event = MockEvent()
 
-    def init(self):
-        self.display = MockDisplay()
-        self.image = MockImage()
+    display = MockDisplay()
+    image = MockImage()
     
     def quit(self):
         pass
