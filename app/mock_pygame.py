@@ -29,6 +29,13 @@ class MockImage:
     def load(self, file_name):
         return MockLoadedImage(file_name)
 
+class MockClock:
+    def tick(self, FramesPerSecond):
+        pass
+
+class MockTime:
+    Clock = MockClock
+
 class Event:
     def __init__(self, type: int):
         self.type = type
@@ -59,6 +66,7 @@ class MockPygame:
 
     display = MockDisplay()
     image = MockImage()
+    time = MockTime()
     
     def init(self):
         pass

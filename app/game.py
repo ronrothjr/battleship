@@ -14,10 +14,12 @@ class Game():
         self._running = False
         self.director = None
         self.publisher = None
+        self.fps = None
 
     def on_init(self, settings: dict) -> 'Game':
         self.director = Director(self.pg, settings)
         self.publisher = EventPublisher({self.pg.QUIT: self.on_exit})
+        self.fps = self.pg.time.Clock()
         self.pg.init()
         self._running = True
         return self
@@ -37,6 +39,7 @@ class Game():
                 self.publisher.on_event(event=event, game=self.pg)
             self.on_loop()
             self.on_render()
+            self.fps.tick(30)
 
     def on_cleanup(self) -> None:
         self.pg.quit()
