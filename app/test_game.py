@@ -1,7 +1,7 @@
 # import pygame
 import threading, unittest
 from game import Game
-from mock_pygame import MockPygame, MockDisplaySurface, MockImageSurface
+from mock_pygame import MockPygame
 from director import Director
 from event_publisher import EventPublisher
 from scenes.settings import settings

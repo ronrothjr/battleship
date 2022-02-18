@@ -1,5 +1,5 @@
 import unittest
-from app.mock_pygame import MockPygame
+from mock_pygame import MockPygame
 from director import Director
 from event_publisher import EventPublisher
 from scenes.settings import settings

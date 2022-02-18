@@ -60,5 +60,8 @@ class MockPygame:
     display = MockDisplay()
     image = MockImage()
     
+    def init(self):
+        pass
+    
     def quit(self):
         pass
