@@ -1,10 +1,8 @@
-import os
+import os, sys
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
 from event_publisher import EventPublisher
 from director import Director
-from asset_utils import AssetUtils
-from scenes.settings import settings
 
 
 class Game():
@@ -36,15 +34,16 @@ class Game():
         while self._running:
             events = self.pg.event.get()
             for event in events:
-                self.publisher.on_event(event=event, game=self.pg)
+                self.publisher.on_event(event=event, game=self.pg, scene=self.director.current_scene)
             self.on_loop()
             self.on_render()
-            self.fps.tick(30)
+            self.fps.tick(60)
 
     def on_cleanup(self) -> None:
         self.pg.quit()
+        sys.exit()
 
-    def on_exit(self, event: pygame.event.Event, game: pygame) -> None:
+    def on_exit(self, event: pygame.event.Event, game: pygame, scene) -> None:
         self._running = False
 
     def on_loop(self) -> None:

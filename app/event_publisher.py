@@ -39,10 +39,10 @@ class EventPublisher:
             handlers.append({'scene': scene, 'func': func})
             self.subscribers[event_type] = handlers
 
-    def on_event(self, event: pygame.event.Event, game: pygame):
+    def on_event(self, event: pygame.event.Event, game: pygame, scene):
         if event.type in self.subscribers.keys():
             for handler in self.subscribers[event.type]:
-                handler.get('func')(event=event, game=game)
+                handler.get('func')(event=event, game=game, scene=scene)
 
     def on_load(self, scene_name: str):
         dir_path = os.path.dirname(os.path.realpath(__file__))
