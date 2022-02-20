@@ -83,7 +83,7 @@ class Enemy(pygame.sprite.Sprite):
     def get_lane(self):
         return random.randint(1, LANES * 2)
  
-    def move(self):
+    def move(self, pos: str=''):
         global SCORE
         self.rect.move_ip(0, SPEED)
         if (self.rect.bottom > SCREEN_HEIGHT + self.image.get_height()):
@@ -105,20 +105,20 @@ class Player(pygame.sprite.Sprite):
         self.original_image = None
         self.original_rect = None
  
-    def move(self):
+    def move(self, pos: str=''):
         pressed_keys = pygame.key.get_pressed()
        #if pressed_keys[K_UP]:
             #self.rect.move_ip(0, -5)
        #if pressed_keys[K_DOWN]:
             #self.rect.move_ip(0,5)
-        left = self.rect.left > OFFSET_WIDTH + LEFT_SHOULDER and pressed_keys[K_LEFT] or pressed_keys[K_a]
-        right = self.rect.right < SCREEN_WIDTH - RIGHT_SHOULDER - int(self.image.get_width() / 2) and pressed_keys[K_RIGHT] or pressed_keys[K_d]
+        left = self.rect.left > OFFSET_WIDTH + LEFT_SHOULDER and (pos == 'left' or pressed_keys[K_LEFT] or pressed_keys[K_a])
+        right = self.rect.right < SCREEN_WIDTH - RIGHT_SHOULDER - int(self.image.get_width() / 2) and (pos == 'right' or pressed_keys[K_RIGHT] or pressed_keys[K_d])
         if left:
             if self.original_image and self.turning == 'right':
                 self.reset_rotation()
             if not self.original_image:
                 self.set_rotation('left', 15)
-            self.rect.move_ip(-int(SPEED / 2), 0)
+            self.rect.move_ip(int(SPEED / 2) * -1, 0)
         elif right:
             if self.original_image and self.turning == 'left':
                 self.reset_rotation()
@@ -155,24 +155,34 @@ all_sprites.add(P1)
 
 tile_placement = TILE_HEIGHT * -1
 
+turn = ''
+
 INC_SPEED = pygame.USEREVENT + 1
 MAX_ENEMIES = 20
 MAX_SPEED = 30
 pygame.time.set_timer(INC_SPEED, 15000)
 
-while True:     
+while True:
     for event in pygame.event.get():
         if event.type == INC_SPEED and SPEED < MAX_SPEED:
               SPEED += 2            
         if event.type == QUIT or event.type == KEYDOWN and event.key == K_ESCAPE:
             pygame.quit()
             sys.exit()
+        if event.type == MOUSEBUTTONDOWN or event.type == MOUSEMOTION:
+            pos = event.pos
+            x = pos[0] / SCREEN_WIDTH
+            turn = 'left' if x < 0.25 else ('right' if x > 0.75 else '')
+        if event.type == MOUSEBUTTONUP:
+            turn = ''
+
     now = pygame.time.get_ticks()
     if now - last_spawn_tick >= SPAWNTIME and enemies.__len__() < MAX_ENEMIES:
         last_spawn_tick = pygame.time.get_ticks()
         enemy = Enemy()
         enemies.add(enemy)
         all_sprites.add(enemy)
+
     DISPLAYSURF.fill(WHITE)
     DISPLAYSURF.blit(left_shoulder, (0 + OFFSET_WIDTH, 0))
     DISPLAYSURF.blit(background, (LEFT_SHOULDER + OFFSET_WIDTH, tile_placement))
@@ -180,15 +190,19 @@ while True:
     if tile_placement > 0:
         tile_placement = TILE_HEIGHT * -1
     DISPLAYSURF.blit(right_shoulder, (LEFT_SHOULDER + OFFSET_WIDTH + LANES_WIDTH, 0))
+
     scores = font_small.render(str(SCORE), True, BLACK)
     DISPLAYSURF.blit(scores, (10,10))
     speed = font_small.render(str(SPEED), True, BLACK)
     DISPLAYSURF.blit(speed, (10,35))
     count = font_small.render(str(enemies.__len__()), True, BLACK)
     DISPLAYSURF.blit(count, (10,60))
+    turning = font_small.render(str(turn), True, BLACK)
+    DISPLAYSURF.blit(turning, (10,100))
     for entity in all_sprites:
         DISPLAYSURF.blit(entity.image, entity.rect)
-        entity.move()
+        entity.move(turn)
+
     if pygame.sprite.spritecollide(P1, enemies, False, pygame.sprite.collide_mask):
         pygame.mixer.Sound('crash.wav').play()
         time.sleep(0.5)
