@@ -1,4 +1,4 @@
-#pylint:disable=E0602
+.0#pylint:disable=E0602
 import pygame, sys, os, random, time
 from pygame.locals import *
 
@@ -26,7 +26,6 @@ SCORE = 0
 font = pygame.font.SysFont("Verdana", 60)
 font_small = pygame.font.SysFont("Verdana", 20)
 game_over = font.render("Game Over", True, BLACK)
-background = pygame.image.load("AnimatedStreet.png")
  
 def makeTiledImage( image, width, height ):
     x_cursor = 0
