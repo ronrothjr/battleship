@@ -20,6 +20,12 @@ WHITE = (255, 255, 255)
 info = pygame.display.Info()
 SCREEN_WIDTH = info.current_w
 SCREEN_HEIGHT = info.current_h
+LEFT_SHOULDER = 41
+RIGHT_SHOULDER = 45
+SHOULDER_WIDTH = LEFT_SHOULDER + RIGHT_SHOULDER
+TILE_WIDTH = 134
+TILE_HEIGHT = 164
+OFFSET_WIDTH = int( ( ( SCREEN_WIDTH - SHOULDER_WIDTH ) % TILE_WIDTH ) / 2 )
 SPEED = 5
 SCORE = 0
 
@@ -32,7 +38,7 @@ def makeTiledImage( image, width, height ):
     x_cursor = 0
     y_cursor = 0
 
-    tiled_image = pygame.Surface( ( width, height + (164 * 2) ) )
+    tiled_image = pygame.Surface( ( width, height + (TILE_HEIGHT * 2) ) )
     while ( y_cursor < height + image.get_height() ):
         while ( x_cursor < width ):
             tiled_image.blit( image, ( x_cursor, y_cursor ) )
@@ -40,13 +46,13 @@ def makeTiledImage( image, width, height ):
         y_cursor += image.get_height()
         x_cursor = 0
     return tiled_image
-
+LANES_WIDTH = int( (SCREEN_WIDTH - SHOULDER_WIDTH) / TILE_WIDTH ) * TILE_WIDTH
 DISPLAYSURF = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.NOFRAME | pygame.FULLSCREEN | pygame.RESIZABLE)
 DISPLAYSURF.fill(WHITE)
 pygame.display.set_caption("Game")
 
 tile_image = pygame.image.load('pavement_tile.png').convert_alpha()
-background = makeTiledImage( tile_image, SCREEN_WIDTH - 86, SCREEN_HEIGHT )
+background = makeTiledImage( tile_image, LANES_WIDTH, SCREEN_HEIGHT )
 left_shoulder = pygame.image.load('left_shoulder.png').convert_alpha()
 right_shoulder = pygame.image.load('right_shoulder.png').convert_alpha()
 tile_height = 164
@@ -95,7 +101,7 @@ enemies = pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
 all_sprites.add(P1)
 
-tile_placement = 164 * -1
+tile_placement = TILE_HEIGHT * -1
 
 INC_SPEED = pygame.USEREVENT + 1
 pygame.time.set_timer(INC_SPEED, 5000)
@@ -114,12 +120,12 @@ while True:
         enemies.add(enemy)
         all_sprites.add(enemy)
     DISPLAYSURF.fill(WHITE)
-    DISPLAYSURF.blit(left_shoulder, (0,0))
-    DISPLAYSURF.blit(background, (41, tile_placement))
+    DISPLAYSURF.blit(left_shoulder, (0 + OFFSET_WIDTH, 0))
+    DISPLAYSURF.blit(background, (LEFT_SHOULDER + OFFSET_WIDTH, tile_placement))
     tile_placement += 5
     if tile_placement > 0:
-        tile_placement = 164 * -1
-    DISPLAYSURF.blit(right_shoulder, (SCREEN_WIDTH - 45,0))
+        tile_placement = TILE_HEIGHT * -1
+    DISPLAYSURF.blit(right_shoulder, (LEFT_SHOULDER + OFFSET_WIDTH + LANES_WIDTH, 0))
     scores = font_small.render(str(SCORE), True, BLACK)
     DISPLAYSURF.blit(scores, (10,10))
     for entity in all_sprites:
