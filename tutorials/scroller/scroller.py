@@ -46,11 +46,6 @@ def makeTiledImage( image, width, height ):
         x_cursor = 0
     return tiled_image
 
-def blitRotateCenter(image, topleft, angle):
-    rotated_image = pygame.transform.rotate(image, angle)
-    new_rect = rotated_image.get_rect(center = image.get_rect(topleft = topleft).center)
-    return rotated_image, new_rect
-
 def draw_ellipse_angle(surface, color, rect, angle, width=0):
     target_rect = pygame.Rect(rect)
     shape_surf = pygame.Surface(target_rect.size, pygame.SRCALPHA)
@@ -69,6 +64,7 @@ background = makeTiledImage( tile_image, LANES_WIDTH, SCREEN_HEIGHT )
 left_shoulder = pygame.image.load('left_shoulder.png').convert_alpha()
 right_shoulder = pygame.image.load('right_shoulder.png').convert_alpha()
 tile_height = 164
+turn = ''
  
 class Enemy(pygame.sprite.Sprite):
     def __init__(self):
@@ -83,7 +79,7 @@ class Enemy(pygame.sprite.Sprite):
     def get_lane(self):
         return random.randint(1, LANES * 2)
  
-    def move(self, pos: str=''):
+    def move(self, turn: str=''):
         global SCORE
         self.rect.move_ip(0, SPEED)
         if (self.rect.bottom > SCREEN_HEIGHT + self.image.get_height()):
@@ -92,57 +88,81 @@ class Enemy(pygame.sprite.Sprite):
             lane = self.get_lane()
             x = OFFSET_WIDTH + LEFT_SHOULDER + ( lane * int( TILE_WIDTH / 2 ) ) - int( TILE_WIDTH / 2 )
             self.rect.center = (x, 0)
- 
- 
+        return turn
+
+
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__() 
         self.image = pygame.image.load("player.png")
+        self.original_image = copy.copy(self.image)
         self.rect = self.image.get_rect()
         self.rect.center = (int(SCREEN_WIDTH / 2), int(SCREEN_HEIGHT * 0.8))
+        self.angle = 0
+        self.boost = 0
+        self.left = self.rect.topleft[0]
+        self.top = self.rect.topleft[1]
         self.mask = pygame.mask.from_surface(self.image)
         self.turning = None
-        self.original_image = None
-        self.original_rect = None
- 
-    def move(self, pos: str=''):
-        pressed_keys = pygame.key.get_pressed()
-       #if pressed_keys[K_UP]:
-            #self.rect.move_ip(0, -5)
-       #if pressed_keys[K_DOWN]:
-            #self.rect.move_ip(0,5)
-        left = self.rect.left > OFFSET_WIDTH + LEFT_SHOULDER and (pos == 'left' or pressed_keys[K_LEFT] or pressed_keys[K_a])
-        right = self.rect.right < SCREEN_WIDTH - RIGHT_SHOULDER and (pos == 'right' or pressed_keys[K_RIGHT] or pressed_keys[K_d])
-        if left:
-            if self.original_image and self.turning == 'right':
-                self.reset_rotation()
-            if not self.original_image:
-                self.set_rotation('left', 15)
-            self.rect.move_ip(int(SPEED / 2) * -1, 0)
-        elif right:
-            if self.original_image and self.turning == 'left':
-                self.reset_rotation()
-            if not self.original_image:
-                self.set_rotation('right', -15)
-            self.rect.move_ip(int(SPEED / 2), 0)
-        if not left and not right:
-            self.reset_rotation()
 
-    def set_rotation(self, turn, angle):
-        self.turning = turn
-        self.original_image = copy.copy(self.image)
-        self.original_rect = copy.copy(self.rect)
-        self.image, self.rect = blitRotateCenter(self.image, (self.rect.x, self.rect.y), angle)
+    def move(self, turn: str=''):
+        pressed_keys = pygame.key.get_pressed()
+        up = self.rect.topleft[1] > SCREEN_HEIGHT * 0.55 and (pressed_keys[K_UP] or pressed_keys[K_w])
+        not_bottom = self.rect.bottomright[1] < SCREEN_HEIGHT * 0.8 + int( self.rect.height / 2 )
+        down = not_bottom and (pressed_keys[K_DOWN] or pressed_keys[K_s])
+        left = self.rect.left > OFFSET_WIDTH + LEFT_SHOULDER and (turn == 'left' or pressed_keys[K_LEFT] or pressed_keys[K_a])
+        right = self.rect.right < SCREEN_WIDTH - RIGHT_SHOULDER and (turn == 'right' or pressed_keys[K_RIGHT] or pressed_keys[K_d])
+        x_change = 0
+        y_change = 0
+        if up:
+            if self.boost < SPEED:
+                self.boost += int(SPEED / 5)
+            turn = 'up'
+        elif down:
+            y_change = int(SPEED / 2)
+            turn = 'down'
+        if left:
+            if self.angle < 15:
+                self.angle += 1
+        elif right:
+            if self.angle > -15:
+                self.angle -= 1
+        if self.angle != 0:
+            self.turning = 'right' if self.angle > -15 else 'left'
+            x_change = int(SPEED / 2 * (self.angle / 15 * -1))
+            self.set_rotation()
+        if self.boost > 0:
+            y_change -= self.boost
+            if not up:
+                self.boost -= int(SPEED / 5)
+        elif not_bottom:
+            y_change += int(SPEED / 5)
+        self.left += x_change
+        self.top += y_change
+        self.rect.move_ip(x_change, y_change)
+        if not up and not down and not left and not right:
+            turn = ''
+            if self.angle != 0 and self.angle <=15 and self.angle >= -15:
+                self.angle += -1 if self.angle > 0 else 1
+                self.set_rotation()
+        return turn
+
+    def set_rotation(self):
+        self.image = copy.copy(self.original_image)
+        self.image, self.rect = self.blitRotateCenter(self.image, (self.left, self.top), self.angle)
         self.mask = pygame.mask.from_surface(self.image)
+
+    def blitRotateCenter(self, image, topleft, angle):
+        rotated_image = pygame.transform.rotate(image, angle)
+        new_rect = rotated_image.get_rect(center = image.get_rect(topleft = topleft).center)
+        return rotated_image, new_rect
     
     def reset_rotation(self):
         if self.original_image:
             self.image = copy.copy(self.original_image)
-            height = (SCREEN_HEIGHT * 0.8) - int(self.image.get_height() / 2)
-            self.rect = self.image.get_rect(center = self.image.get_rect(topleft = (self.rect.x, height)).center)
+            self.rect = self.image.get_rect(center = self.image.get_rect(topleft = (self.rect.x, self.top + int( self.rect.height / 2 ))).center)
             self.mask = pygame.mask.from_surface(self.image)
             self.original_image = None
-            self.original_rect = None
             self.turning = None
 
          
@@ -155,7 +175,6 @@ all_sprites.add(P1)
 
 tile_placement = TILE_HEIGHT * -1
 
-turn = ''
 
 INC_SPEED = pygame.USEREVENT + 1
 MAX_ENEMIES = 20
@@ -191,6 +210,13 @@ while True:
         tile_placement = TILE_HEIGHT * -1
     DISPLAYSURF.blit(right_shoulder, (LEFT_SHOULDER + OFFSET_WIDTH + LANES_WIDTH, 0))
 
+    for entity in all_sprites:
+        DISPLAYSURF.blit(entity.image, entity.rect)
+        if entity == P1:
+            turn = entity.move(turn)
+        else:
+            entity.move()
+
     scores = font_small.render(str(SCORE), True, BLACK)
     DISPLAYSURF.blit(scores, (10,10))
     speed = font_small.render(str(SPEED), True, BLACK)
@@ -199,9 +225,14 @@ while True:
     DISPLAYSURF.blit(count, (10,60))
     turning = font_small.render(str(turn), True, BLACK)
     DISPLAYSURF.blit(turning, (10,100))
-    for entity in all_sprites:
-        DISPLAYSURF.blit(entity.image, entity.rect)
-        entity.move(turn)
+    position = font_small.render(f'{str(P1.rect.topleft[1])},{str(P1.rect.left)},{str(P1.rect.bottomright[1])},{str(P1.rect.right)}', True, BLACK)
+    DISPLAYSURF.blit(position, (40,10))
+    up = font_small.render(f'{str(SCREEN_HEIGHT * 0.55)}', True, BLACK)
+    DISPLAYSURF.blit(up, (40,35))
+    down = font_small.render(f'{str(SCREEN_HEIGHT * 0.85)}', True, BLACK)
+    DISPLAYSURF.blit(down, (40,60))
+    angle = font_small.render(f'{str(P1.angle)}', True, BLACK)
+    DISPLAYSURF.blit(angle, (40,100))
 
     if pygame.sprite.spritecollide(P1, enemies, False, pygame.sprite.collide_mask):
         pygame.mixer.Sound('crash.wav').play()
