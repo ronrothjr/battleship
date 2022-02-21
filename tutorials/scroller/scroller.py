@@ -27,6 +27,7 @@ TILE_WIDTH = 134
 TILE_HEIGHT = 164
 OFFSET_WIDTH = int( ( ( SCREEN_WIDTH - SHOULDER_WIDTH ) % TILE_WIDTH ) / 2 ) + ( LINE_WIDTH / 2 )
 SPEED = 5
+TURN_RADIUS = 30
 SCORE = 0
 
 font = pygame.font.SysFont("Verdana", 60)
@@ -100,6 +101,8 @@ class Player(pygame.sprite.Sprite):
         self.rect.center = (int(SCREEN_WIDTH / 2), int(SCREEN_HEIGHT * 0.8))
         self.angle = 0
         self.boost = 0
+        self.boosting = False
+        self.recharge = 0
         self.left = self.rect.topleft[0]
         self.top = self.rect.topleft[1]
         self.mask = pygame.mask.from_surface(self.image)
@@ -109,27 +112,35 @@ class Player(pygame.sprite.Sprite):
         pressed_keys = pygame.key.get_pressed()
         up = self.rect.topleft[1] > SCREEN_HEIGHT * 0.55 and (pressed_keys[K_UP] or pressed_keys[K_w])
         not_bottom = self.rect.bottomright[1] < SCREEN_HEIGHT * 0.8 + int( self.rect.height / 2 )
-        down = not_bottom and (pressed_keys[K_DOWN] or pressed_keys[K_s])
+        down = not_bottom and (pressed_keys[K_SPACE])
         left = self.rect.left > OFFSET_WIDTH + LEFT_SHOULDER and (turn == 'left' or pressed_keys[K_LEFT] or pressed_keys[K_a])
         right = self.rect.right < SCREEN_WIDTH - RIGHT_SHOULDER and (turn == 'right' or pressed_keys[K_RIGHT] or pressed_keys[K_d])
         x_change = 0
         y_change = 0
         if up:
-            if self.boost < SPEED:
-                self.boost += int(SPEED / 5)
+            if (self.recharge == 0 or self.boosting):
+                if not self.boosting:
+                    self.recharge = 180
+                    self.boosting = True
+                if self.boost < SPEED:
+                    if self.boost == 0:
+                        pygame.mixer.Sound('boost.wav').play()
+                    self.boost += int(SPEED / 5)
+                else:
+                    self.boosting = False
             turn = 'up'
         elif down:
             y_change = int(SPEED / 2)
             turn = 'down'
         if left:
-            if self.angle < 15:
+            if self.angle < TURN_RADIUS:
                 self.angle += 1
         elif right:
-            if self.angle > -15:
+            if self.angle > -TURN_RADIUS:
                 self.angle -= 1
         if self.angle != 0:
-            self.turning = 'right' if self.angle > -15 else 'left'
-            x_change = int(SPEED / 2 * (self.angle / 15 * -1))
+            self.turning = 'right' if self.angle > -TURN_RADIUS else 'left'
+            x_change = int((SPEED + self.boost) / 3 * (self.angle / TURN_RADIUS * -1))
             self.set_rotation()
         if self.boost > 0:
             y_change -= self.boost
@@ -137,12 +148,14 @@ class Player(pygame.sprite.Sprite):
                 self.boost -= int(SPEED / 5)
         elif not_bottom:
             y_change += int(SPEED / 5)
+        if self.recharge > 0:
+            self.recharge -= 1
         self.left += x_change
         self.top += y_change
         self.rect.move_ip(x_change, y_change)
         if not up and not down and not left and not right:
             turn = ''
-            if self.angle != 0 and self.angle <=15 and self.angle >= -15:
+            if self.angle != 0 and self.angle <=TURN_RADIUS and self.angle >= -TURN_RADIUS:
                 self.angle += -1 if self.angle > 0 else 1
                 self.set_rotation()
         return turn
@@ -219,20 +232,20 @@ while True:
 
     scores = font_small.render(str(SCORE), True, BLACK)
     DISPLAYSURF.blit(scores, (10,10))
-    speed = font_small.render(str(SPEED), True, BLACK)
+    speed = font_small.render(f'{str((SPEED + P1.boost) * 2)} mph', True, BLACK)
     DISPLAYSURF.blit(speed, (10,35))
     count = font_small.render(str(enemies.__len__()), True, BLACK)
     DISPLAYSURF.blit(count, (10,60))
-    turning = font_small.render(str(turn), True, BLACK)
-    DISPLAYSURF.blit(turning, (10,100))
-    position = font_small.render(f'{str(P1.rect.topleft[1])},{str(P1.rect.left)},{str(P1.rect.bottomright[1])},{str(P1.rect.right)}', True, BLACK)
-    DISPLAYSURF.blit(position, (40,10))
-    up = font_small.render(f'{str(SCREEN_HEIGHT * 0.55)}', True, BLACK)
-    DISPLAYSURF.blit(up, (40,35))
-    down = font_small.render(f'{str(SCREEN_HEIGHT * 0.85)}', True, BLACK)
-    DISPLAYSURF.blit(down, (40,60))
-    angle = font_small.render(f'{str(P1.angle)}', True, BLACK)
-    DISPLAYSURF.blit(angle, (40,100))
+    # turning = font_small.render(str(turn), True, BLACK)
+    # DISPLAYSURF.blit(turning, (10,100))
+    # position = font_small.render(f'{str(P1.rect.topleft[1])},{str(P1.rect.left)},{str(P1.rect.bottomright[1])},{str(P1.rect.right)}', True, BLACK)
+    # DISPLAYSURF.blit(position, (40,10))
+    # up = font_small.render(f'{str(SCREEN_HEIGHT * 0.55)}', True, BLACK)
+    # DISPLAYSURF.blit(up, (40,35))
+    # down = font_small.render(f'{str(SCREEN_HEIGHT * 0.85)}', True, BLACK)
+    # DISPLAYSURF.blit(down, (40,60))
+    # angle = font_small.render(f'{str(P1.angle)}', True, BLACK)
+    # DISPLAYSURF.blit(angle, (40,100))
 
     if pygame.sprite.spritecollide(P1, enemies, False, pygame.sprite.collide_mask):
         pygame.mixer.Sound('crash.wav').play()
