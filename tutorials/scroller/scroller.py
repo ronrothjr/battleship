@@ -149,7 +149,7 @@ class Player(pygame.sprite.Sprite):
         elif not_bottom:
             y_change += int(SPEED / 5)
         if self.recharge > 0:
-            self.recharge -= 1
+            self.recharge -= int(SPEED / 5)
         self.left += x_change
         self.top += y_change
         self.rect.move_ip(x_change, y_change)
