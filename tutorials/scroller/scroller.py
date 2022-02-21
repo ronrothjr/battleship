@@ -99,7 +99,7 @@ class Player(pygame.sprite.Sprite):
         super().__init__() 
         self.image = pygame.image.load("player.png")
         self.rect = self.image.get_rect()
-        self.rect.center = (int(SCREEN_WIDTH / 2), SCREEN_HEIGHT - 200)
+        self.rect.center = (int(SCREEN_WIDTH / 2), int(SCREEN_HEIGHT * 0.8))
         self.mask = pygame.mask.from_surface(self.image)
         self.turning = None
         self.original_image = None
@@ -112,7 +112,7 @@ class Player(pygame.sprite.Sprite):
        #if pressed_keys[K_DOWN]:
             #self.rect.move_ip(0,5)
         left = self.rect.left > OFFSET_WIDTH + LEFT_SHOULDER and (pos == 'left' or pressed_keys[K_LEFT] or pressed_keys[K_a])
-        right = self.rect.right < SCREEN_WIDTH - RIGHT_SHOULDER - int(self.image.get_width() / 2) and (pos == 'right' or pressed_keys[K_RIGHT] or pressed_keys[K_d])
+        right = self.rect.right < SCREEN_WIDTH - RIGHT_SHOULDER and (pos == 'right' or pressed_keys[K_RIGHT] or pressed_keys[K_d])
         if left:
             if self.original_image and self.turning == 'right':
                 self.reset_rotation()
@@ -138,7 +138,7 @@ class Player(pygame.sprite.Sprite):
     def reset_rotation(self):
         if self.original_image:
             self.image = copy.copy(self.original_image)
-            height = SCREEN_HEIGHT - 200 - int(self.image.get_height() / 2)
+            height = (SCREEN_HEIGHT * 0.8) - int(self.image.get_height() / 2)
             self.rect = self.image.get_rect(center = self.image.get_rect(topleft = (self.rect.x, height)).center)
             self.mask = pygame.mask.from_surface(self.image)
             self.original_image = None
@@ -172,7 +172,7 @@ while True:
         if event.type == MOUSEBUTTONDOWN or event.type == MOUSEMOTION:
             pos = event.pos
             x = pos[0] / SCREEN_WIDTH
-            turn = 'left' if x < 0.25 else ('right' if x > 0.75 else '')
+            turn = 'left' if x < 0.4 else ('right' if x > 0.6 else '')
         if event.type == MOUSEBUTTONUP:
             turn = ''
 
