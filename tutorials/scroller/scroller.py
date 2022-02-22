@@ -183,9 +183,13 @@ class Hitchhiker(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.mask = pygame.mask.from_surface(self.image)
         sides = []
-        sides.append(OFFSET_WIDTH + int(LEFT_SHOULDER / 2))
-        sides.append(OFFSET_WIDTH + LEFT_SHOULDER + LANES_WIDTH + int(RIGHT_SHOULDER / 2))
+        left = OFFSET_WIDTH + int(LEFT_SHOULDER / 2)
+        sides.append(left)
+        right = OFFSET_WIDTH + LEFT_SHOULDER + LANES_WIDTH + int(RIGHT_SHOULDER / 2)
+        sides.append(right)
         side = random.choice(sides)
+        if side == left:
+            self.image = pygame.transform.flip(self.image, True, False)
         self.rect.center=(side, SCREEN_HEIGHT * 0.2)
         
     def move(self):
