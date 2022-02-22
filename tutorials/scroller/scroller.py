@@ -74,18 +74,18 @@ class Enemy(pygame.sprite.Sprite):
     def __init__(self, settings: Settings):
         super().__init__()
         self.settings = settings
-        self.image = pygame.image.load("enemy.png")
+        self.image = self.settings.pg.image.load("enemy.png")
         self.rect = self.image.get_rect()
         self.lane = self.get_lane()
         x = settings.OFFSET_WIDTH + settings.LEFT_SHOULDER + ( self.lane * settings.TILE_WIDTH ) - int( settings.TILE_WIDTH / 2 ) - int( self.rect.width / 2 )
         self.rect.center=(x,0)
-        self.mask = pygame.mask.from_surface(self.image)
+        self.mask = self.settings.pg.mask.from_surface(self.image)
         self.speed = settings.ENEMY_SPEEDS.pop(random.randrange(0, len(settings.ENEMY_SPEEDS)))
 
     def get_lane(self):
-        lane = random.randint(1, self.settings.LANES * 2 - 1)
+        lane = random.randint(1, self.settings.LANES * 2)
         while not self.is_lane_empty(lane):
-            lane = random.randint(1, self.settings.LANES * 2 - 1)
+            lane = random.randint(1, self.settings.LANES * 2)
         return lane
 
     def is_lane_empty(self, lane):
@@ -123,7 +123,7 @@ class Player(pygame.sprite.Sprite):
         self.turning = None
 
     def move(self, turn: str=''):
-        pressed_keys = pygame.key.get_pressed()
+        pressed_keys = self.settings.pg.key.get_pressed()
         up = self.rect.topleft[1] > self.settings.SCREEN_HEIGHT * 0.55 and (turn == 'boost' or pressed_keys[K_UP] or pressed_keys[K_w])
         not_bottom = self.rect.bottomright[1] < self.settings.SCREEN_HEIGHT * 0.8 + int( self.rect.height / 2 )
         down = not_bottom and (pressed_keys[K_SPACE])
@@ -138,7 +138,7 @@ class Player(pygame.sprite.Sprite):
                     self.boosting = True
                 if self.boost < self.settings.SPEED:
                     if self.boost == 0:
-                        pygame.mixer.Sound('boost.wav').play()
+                        self.settings.pg.mixer.Sound('boost.wav').play()
                     self.boost += int(self.settings.SPEED / 5)
                 else:
                     self.boosting = False
@@ -181,10 +181,10 @@ class Player(pygame.sprite.Sprite):
     def set_rotation(self):
         self.image = copy.copy(self.original_image)
         self.image, self.rect = self.blitRotateCenter(self.image, (self.left, self.top), self.angle)
-        self.mask = pygame.mask.from_surface(self.image)
+        self.mask = self.settings.pg.mask.from_surface(self.image)
 
     def blitRotateCenter(self, image, topleft, angle):
-        rotated_image = pygame.transform.rotate(image, angle)
+        rotated_image = self.settings.pg.transform.rotate(image, angle)
         new_rect = rotated_image.get_rect(center = image.get_rect(topleft = topleft).center)
         return rotated_image, new_rect
 
@@ -194,9 +194,9 @@ class Hitchhiker(pygame.sprite.Sprite):
         super().__init__()
         self.settings: Settings = settings
         self.id = random.choice([1,2,3,4,5,6])
-        self.image = pygame.image.load(f"hitchhiker{self.id}.png")
+        self.image = self.settings.pg.image.load(f"hitchhiker{self.id}.png")
         self.rect = self.image.get_rect()
-        self.mask = pygame.mask.from_surface(self.image)
+        self.mask = self.settings.pg.mask.from_surface(self.image)
         sides = []
         left = self.settings.OFFSET_WIDTH + int(self.settings.LEFT_SHOULDER / 2)
         sides.append(left)
@@ -204,7 +204,7 @@ class Hitchhiker(pygame.sprite.Sprite):
         sides.append(right)
         side = random.choice(sides)
         if side == left:
-            self.image = pygame.transform.flip(self.image, True, False)
+            self.image = self.settings.pg.transform.flip(self.image, True, False)
         self.rect.center=(side, self.settings.SCREEN_HEIGHT * -0.05)
         
     def move(self):
@@ -212,8 +212,8 @@ class Hitchhiker(pygame.sprite.Sprite):
         if (self.rect.bottom > self.settings.SCREEN_HEIGHT + self.image.get_height()):
             self.kill()
 
-    def play(self):
-        pygame.mixer.Sound(f'hitchhiker{self.id}.wav').play()
+    def play(self, reaction: str):
+        self.settings.pg.mixer.Sound(f'{reaction}{self.id}.wav').play()
 
 
 class Hitcher:
@@ -229,9 +229,10 @@ class Hitcher:
         self.LAST_INC_SPEED = now
         self.LAST_SPAWN_HITCHHIKER = now
         self.tile_placement = self.settings.TILE_HEIGHT * -1
-        self.settings.pg.mouse.set_pos((int(self.settings.SCREEN_HEIGHT * 0.5), int(self.settings.SCREEN_WIDTH * 0.8)))
+        self.settings.pg.mouse.set_pos((int(self.settings.SCREEN_WIDTH * 0.5), int(self.settings.SCREEN_HEIGHT * 0.8)))
 
     def game_loop(self):
+        self.settings.pg.mixer.Sound('traffic.wav').play()
         while True:
             now = self.settings.pg.time.get_ticks()
             for event in self.settings.pg.event.get():
@@ -250,7 +251,7 @@ class Hitcher:
                     LAST_SPAWN_HITCHHIKER = now - LAST_SPAWN_HITCHHIKER
                     continue
                 if event.type == QUIT or event.type == self.settings.pg.KEYDOWN and event.key == self.settings.pg.K_ESCAPE:
-                    pygame.quit()
+                    self.settings.pg.quit()
                     sys.exit()
                 if event.type == self.settings.pg.MOUSEBUTTONDOWN or event.type == self.settings.pg.MOUSEMOTION:
                     pos = event.pos
@@ -325,12 +326,13 @@ class Hitcher:
                     squished = self.settings.pg.sprite.spritecollide(e, self.settings.hitchers, True, self.settings.pg.sprite.collide_mask)
                     if squished:
                         for h in squished:
+                            h.play('pain')
                             h.kill()
                 
                 hitched = self.settings.pg.sprite.spritecollide(self.P1, self.settings.hitchers, True, self.settings.pg.sprite.collide_mask)
                 if hitched:
                     for h in hitched:
-                        h.play()
+                        h.play('hitchhiker')
                         self.settings.SCORE += 5
 
                 if self.settings.pg.sprite.spritecollide(self.P1, self.settings.enemies, False, self.settings.pg.sprite.collide_mask):
