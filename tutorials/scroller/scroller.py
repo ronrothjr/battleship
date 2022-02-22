@@ -78,7 +78,7 @@ class Enemy(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.image)
 
     def get_lane(self):
-        return random.randint(1, LANES * 2)
+        return random.randint(1, LANES * 2 - 1)
  
     def move(self, turn: str=''):
         global SCORE
@@ -150,6 +150,10 @@ class Player(pygame.sprite.Sprite):
             y_change += int(SPEED / 5)
         if self.recharge > 0:
             self.recharge -= int(SPEED / 5)
+        if self.left + x_change < OFFSET_WIDTH + LEFT_SHOULDER:
+            x_change = self.left - (OFFSET_WIDTH + LEFT_SHOULDER)
+        if self.left + self.rect.width + x_change > SCREEN_WIDTH - RIGHT_SHOULDER:
+            x_change = (SCREEN_WIDTH - RIGHT_SHOULDER) - (self.left + self.rect.width)
         self.left += x_change
         self.top += y_change
         self.rect.move_ip(x_change, y_change)
@@ -170,26 +174,51 @@ class Player(pygame.sprite.Sprite):
         new_rect = rotated_image.get_rect(center = image.get_rect(topleft = topleft).center)
         return rotated_image, new_rect
 
+
+class Hitchhiker(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__() 
+        self.image = pygame.image.load("hitchhiker.png")
+        self.image = pygame.transform.scale(self.image, (72, 63))
+        self.rect = self.image.get_rect()
+        self.mask = pygame.mask.from_surface(self.image)
+        sides = []
+        sides.append(OFFSET_WIDTH + int(LEFT_SHOULDER / 2))
+        sides.append(OFFSET_WIDTH + LEFT_SHOULDER + LANES_WIDTH + int(RIGHT_SHOULDER / 2))
+        side = random.choice(sides)
+        self.rect.center=(side, SCREEN_HEIGHT * 0.2)
+        
+    def move(self):
+        self.rect.move_ip(0, int(SPEED / 2))
+        if (self.rect.bottom > SCREEN_HEIGHT + self.image.get_height()):
+            self.kill()
+
          
 P1 = Player()
 SPAWNTIME = 10000
 last_spawn_tick = 0
 enemies = pygame.sprite.Group()
+hitchers = pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
 all_sprites.add(P1)
 
 tile_placement = TILE_HEIGHT * -1
 
-
 INC_SPEED = pygame.USEREVENT + 1
+SPAWN_HITCHHIKER = pygame.USEREVENT + 2
 MAX_ENEMIES = 20
 MAX_SPEED = 30
 pygame.time.set_timer(INC_SPEED, 15000)
+pygame.time.set_timer(SPAWN_HITCHHIKER, 5000)
 
 while True:
     for event in pygame.event.get():
         if event.type == INC_SPEED and SPEED < MAX_SPEED:
-              SPEED += 2            
+              SPEED += 2
+        if event.type == SPAWN_HITCHHIKER:
+            hitcher = Hitchhiker()
+            hitchers.add(hitcher)
+            all_sprites.add(hitcher)
         if event.type == QUIT or event.type == KEYDOWN and event.key == K_ESCAPE:
             pygame.quit()
             sys.exit()
@@ -228,16 +257,25 @@ while True:
     DISPLAYSURF.blit(speed, (10,35))
     count = font_small.render(str(enemies.__len__()), True, BLACK)
     DISPLAYSURF.blit(count, (10,60))
-    # turning = font_small.render(str(turn), True, BLACK)
-    # DISPLAYSURF.blit(turning, (10,100))
-    # position = font_small.render(f'{str(P1.rect.topleft[1])},{str(P1.rect.left)},{str(P1.rect.bottomright[1])},{str(P1.rect.right)}', True, BLACK)
-    # DISPLAYSURF.blit(position, (40,10))
-    # up = font_small.render(f'{str(SCREEN_HEIGHT * 0.55)}', True, BLACK)
-    # DISPLAYSURF.blit(up, (40,35))
-    # down = font_small.render(f'{str(SCREEN_HEIGHT * 0.85)}', True, BLACK)
-    # DISPLAYSURF.blit(down, (40,60))
-    # angle = font_small.render(f'{str(P1.angle)}', True, BLACK)
-    # DISPLAYSURF.blit(angle, (40,100))
+    boost_left = font.render('boost |', True, BLACK)
+    DISPLAYSURF.blit(boost_left, (int(SCREEN_WIDTH * 0.15), SCREEN_HEIGHT * 0.85))
+    left = font.render('<', True, BLACK)
+    DISPLAYSURF.blit(left, (int(SCREEN_WIDTH * 0.40), SCREEN_HEIGHT * 0.85))
+    right = font.render('>', True, BLACK)
+    DISPLAYSURF.blit(right, (int(SCREEN_WIDTH * 0.57), SCREEN_HEIGHT * 0.85))
+    boost_right = font.render('| boost', True, BLACK)
+    DISPLAYSURF.blit(boost_right, (int(SCREEN_WIDTH * 0.70), SCREEN_HEIGHT * 0.85))
+    
+    for e in enemies:
+        squished = pygame.sprite.spritecollide(e, hitchers, True, pygame.sprite.collide_mask)
+        if squished:
+            for h in squished:
+                h.kill()
+    
+    hitched = pygame.sprite.spritecollide(P1, hitchers, True, pygame.sprite.collide_mask)
+    if hitched:
+        for h in hitched:
+            SCORE += 5
 
     if pygame.sprite.spritecollide(P1, enemies, False, pygame.sprite.collide_mask):
         pygame.mixer.Sound('crash.wav').play()
