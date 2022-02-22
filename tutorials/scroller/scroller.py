@@ -37,7 +37,6 @@ game_over = font.render("Game Over", True, BLACK)
 def makeTiledImage( image, width, height ):
     x_cursor = 0
     y_cursor = 0
-
     tiled_image = pygame.Surface( ( width, height + (TILE_HEIGHT * 2) ) )
     while ( y_cursor < height + image.get_height() ):
         while ( x_cursor < width ):
@@ -46,13 +45,6 @@ def makeTiledImage( image, width, height ):
         y_cursor += image.get_height()
         x_cursor = 0
     return tiled_image
-
-def draw_ellipse_angle(surface, color, rect, angle, width=0):
-    target_rect = pygame.Rect(rect)
-    shape_surf = pygame.Surface(target_rect.size, pygame.SRCALPHA)
-    pygame.draw.ellipse(shape_surf, color, (0, 0, *target_rect.size), width)
-    rotated_surf = pygame.transform.rotate(shape_surf, angle)
-    surface.blit(rotated_surf, rotated_surf.get_rect(center = target_rect.center))
 
 LANES = int( (SCREEN_WIDTH - SHOULDER_WIDTH) / TILE_WIDTH )
 LANES_WIDTH = LANES * TILE_WIDTH - LINE_WIDTH
@@ -76,13 +68,14 @@ class Enemy(pygame.sprite.Sprite):
         x = OFFSET_WIDTH + LEFT_SHOULDER + ( lane * TILE_WIDTH ) - int( TILE_WIDTH / 2 )
         self.rect.center=(x,0)
         self.mask = pygame.mask.from_surface(self.image)
+        self.speed = random.random()
 
     def get_lane(self):
         return random.randint(1, LANES * 2 - 1)
  
-    def move(self, turn: str=''):
+    def move(self):
         global SCORE
-        self.rect.move_ip(0, SPEED)
+        self.rect.move_ip(0, int( int(SPEED * 0.65) + int( ( (SPEED / 2) * self.speed ) ) ))
         if (self.rect.bottom > SCREEN_HEIGHT + self.image.get_height()):
             SCORE += 1
             self.rect.top = 0
