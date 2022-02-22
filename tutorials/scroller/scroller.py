@@ -169,14 +169,6 @@ class Player(pygame.sprite.Sprite):
         rotated_image = pygame.transform.rotate(image, angle)
         new_rect = rotated_image.get_rect(center = image.get_rect(topleft = topleft).center)
         return rotated_image, new_rect
-    
-    def reset_rotation(self):
-        if self.original_image:
-            self.image = copy.copy(self.original_image)
-            self.rect = self.image.get_rect(center = self.image.get_rect(topleft = (self.rect.x, self.top + int( self.rect.height / 2 ))).center)
-            self.mask = pygame.mask.from_surface(self.image)
-            self.original_image = None
-            self.turning = None
 
          
 P1 = Player()
@@ -204,7 +196,7 @@ while True:
         if event.type == MOUSEBUTTONDOWN or event.type == MOUSEMOTION:
             pos = event.pos
             x = pos[0] / SCREEN_WIDTH
-            turn = 'boost' if x < 0.3 else ('left' if x < 0.45 else ('boost' if x > 0.7 else ('right' if x > 0.55else '')))
+            turn = 'boost' if x < 0.3 else ('left' if x < 0.45 else ('boost' if x > 0.7 else ('right' if x > 0.55 else '')))
         if event.type == MOUSEBUTTONUP:
             turn = ''
 
