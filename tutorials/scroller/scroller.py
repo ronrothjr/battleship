@@ -110,7 +110,7 @@ class Player(pygame.sprite.Sprite):
 
     def move(self, turn: str=''):
         pressed_keys = pygame.key.get_pressed()
-        up = self.rect.topleft[1] > SCREEN_HEIGHT * 0.55 and (pressed_keys[K_UP] or pressed_keys[K_w])
+        up = self.rect.topleft[1] > SCREEN_HEIGHT * 0.55 and (turn == 'boost' or pressed_keys[K_UP] or pressed_keys[K_w])
         not_bottom = self.rect.bottomright[1] < SCREEN_HEIGHT * 0.8 + int( self.rect.height / 2 )
         down = not_bottom and (pressed_keys[K_SPACE])
         left = self.rect.left > OFFSET_WIDTH + LEFT_SHOULDER and (turn == 'left' or pressed_keys[K_LEFT] or pressed_keys[K_a])
@@ -204,7 +204,7 @@ while True:
         if event.type == MOUSEBUTTONDOWN or event.type == MOUSEMOTION:
             pos = event.pos
             x = pos[0] / SCREEN_WIDTH
-            turn = 'left' if x < 0.4 else ('right' if x > 0.6 else '')
+            turn = 'boost' if x < 0.3 else ('left' if x < 0.45 else ('boost' if x > 0.7 else ('right' if x > 0.55else '')))
         if event.type == MOUSEBUTTONUP:
             turn = ''
 
