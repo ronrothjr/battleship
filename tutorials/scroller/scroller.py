@@ -1,4 +1,4 @@
-import pygame, sys, os, random, copy, time, numpy
+import pygame, sys, os, random, copy, time
 from pygame.locals import *
 
 abspath = os.path.abspath(__file__)
@@ -36,7 +36,7 @@ class Settings:
         self.MAX_ENEMIES = int(self.LANES * 0.6)
         self.SPEED_INC = (0.5) / self.MAX_ENEMIES
         self.ENEMY_SPEEDS = [0.65 + (x * self.SPEED_INC) for x in range(0, self.MAX_ENEMIES)]
-        self.MAX_SPEED = 8
+        self.MAX_SPEED = 10
         self.DISPLAYSURF = self.pg.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT), pg.NOFRAME | pg.FULLSCREEN | pg.RESIZABLE)
         self.DISPLAYSURF.fill(self.WHITE)
         self.pg.display.set_caption("Game")
@@ -131,6 +131,7 @@ class Player(pygame.sprite.Sprite):
         right = self.rect.right < self.settings.SCREEN_WIDTH - self.settings.RIGHT_SHOULDER and (turn == 'right' or pressed_keys[K_RIGHT] or pressed_keys[K_d])
         x_change = 0
         y_change = 0
+
         if up:
             if (self.recharge == 0 or self.boosting):
                 if not self.boosting:
@@ -143,15 +144,19 @@ class Player(pygame.sprite.Sprite):
                 else:
                     self.boosting = False
             turn = 'up'
+
         elif down:
             y_change = int(self.settings.SPEED / 2)
             turn = 'down'
+
         if left:
             if self.angle < self.settings.TURN_RADIUS:
                 self.angle += int(self.settings.SPEED / 5) * 2
+
         elif right:
             if self.angle > -self.settings.TURN_RADIUS:
                 self.angle -= int(self.settings.SPEED / 5) * 2
+
         if self.angle != 0:
             self.turning = 'right' if self.angle > -self.settings.TURN_RADIUS else 'left'
             x_change = int((self.settings.SPEED + self.boost) / 3 * (self.angle / self.settings.TURN_RADIUS * -1))
@@ -244,12 +249,17 @@ class Hitcher:
                         self.LAST_SPAWN_HITCHHIKER = now - self.LAST_SPAWN_HITCHHIKER
                     else:
                         continue
-                elif not self.PAUSED and event.type == self.settings.pg.KEYDOWN and event.key == self.settings.pg.K_p:
-                    self.PAUSED = True
-                    LAST_SPAWN_ENEMY = now - LAST_SPAWN_ENEMY
-                    LAST_INC_SPEED = now - LAST_INC_SPEED
-                    LAST_SPAWN_HITCHHIKER = now - LAST_SPAWN_HITCHHIKER
-                    continue
+                elif not self.PAUSED:
+                    y = 1
+                    if event.type == self.settings.pg.MOUSEBUTTONDOWN or event.type == self.settings.pg.MOUSEMOTION:
+                        pos = event.pos
+                        y = pos[1] / self.settings.SCREEN_HEIGHT
+                    if y < 0.3 or event.type == self.settings.pg.KEYDOWN and event.key == self.settings.pg.K_p:
+                        self.PAUSED = True
+                        self.LAST_SPAWN_ENEMY = now - self.LAST_SPAWN_ENEMY
+                        self.LAST_INC_SPEED = now - self.LAST_INC_SPEED
+                        self.LAST_SPAWN_HITCHHIKER = now - self.LAST_SPAWN_HITCHHIKER
+                        continue
                 if event.type == QUIT or event.type == self.settings.pg.KEYDOWN and event.key == self.settings.pg.K_ESCAPE:
                     self.settings.pg.quit()
                     sys.exit()
