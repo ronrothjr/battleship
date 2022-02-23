@@ -28,12 +28,11 @@ class Settings:
         self.tile_height = 164
         self.turn_radius = 30
         self.fps = 60
-        self.score = 0
         self.spawn_enemy = 10000
         self.inc_speed = 15000
         self.spawn_hitchhiker = 5000
 
-        self.display = self.pg.display.set_mode((self.screen_width, self.screen_height), pg.NOFRAME | pg.FULLSCREEN | pg.RESIZABLE)
+        self.display = self.pg.display.set_mode((self.screen_width, self.screen_height), pg.RESIZABLE)
         self.display.fill(self.white)
         self.pg.display.set_caption("Game")
         self.font = self.pg.font.SysFont("Verdana", 60)
@@ -45,10 +44,6 @@ class Settings:
         self.tile_image = self.pg.image.load('pavement_tile.png').convert_alpha()
         self.left_shoulder = self.pg.image.load('left_shoulder.png').convert_alpha()
         self.right_shoulder = self.pg.image.load('right_shoulder.png').convert_alpha()
-
-        self.enemies = self.pg.sprite.Group()
-        self.hitchers = self.pg.sprite.Group()
-        self.all_sprites = self.pg.sprite.Group()
  
     def makeTiledImage( self, image, width, height ):
         x_cursor = 0
@@ -65,6 +60,7 @@ class Settings:
     def set_game_difficulty(self, speed: int, lanes: int):
         self.speed = speed
         self.lanes = lanes
+        self.score = 0
         self.squished = 0
         self.lanes_width = self.lanes * self.tile_width - self.line_width
         self.margin = int( ( self.screen_width - self.shoulder_width - self.lanes_width ) / 2 )
@@ -72,6 +68,10 @@ class Settings:
         self.right_edge = self.screen_width - self.margin - self.right_shoulder_width
         self.max_enemies = int(self.lanes * 0.6)
         self.speed_inc = (0.5) / self.max_enemies
-        self.enemy_speeds = [0.65 + (x * self.speed_inc) for x in range(0, self.max_enemies)]
+        self.enemy_speeds = [0.65 + (x * self.speed_inc * 0.5) for x in range(0, self.max_enemies)]
         self.max_speed = self.lanes * 2
         self.background = self.makeTiledImage( self.tile_image, self.lanes_width, self.screen_height )
+
+        self.enemies = self.pg.sprite.Group()
+        self.hitchers = self.pg.sprite.Group()
+        self.all_sprites = self.pg.sprite.Group()

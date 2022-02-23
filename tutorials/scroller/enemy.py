@@ -13,9 +13,9 @@ class Enemy(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.lane = self.get_lane()
         x = self.get_x()
-        self.rect.center=(x,0)
+        self.rect.center=(x,-self.image.get_height())
         self.mask = self.settings.pg.mask.from_surface(self.image)
-        self.speed = settings.enemy_speeds.pop(random.randrange(0, len(settings.enemy_speeds)))
+        self.speed = settings.enemy_speeds.pop(random.randrange(0, len(self.settings.enemy_speeds)))
 
     def get_lane(self):
         lane = random.randint(0, self.settings.lanes * 2)

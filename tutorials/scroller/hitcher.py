@@ -49,12 +49,12 @@ class Hitcher:
         self.squish_hitchhikers()
         self.pick_up_hitchhikers()
         self.display_info()
-        if self.is_crash():
-            self.handle_crash()
-            alive = False
         if self.level_up():
             self.handle_level_up()
             leveled = True
+        elif self.is_crash():
+            self.handle_crash()
+            alive = False
         return {'alive': alive, 'leveled': leveled}
 
     def get_move(self, event):
@@ -72,7 +72,7 @@ class Hitcher:
         is_time_to_increase_speed = now - self.last_inc_speed >= self.settings.inc_speed and self.settings.speed < self.settings.max_speed
         if is_time_to_increase_speed:
             self.last_inc_speed = now
-            self.settings.speed += 2
+            self.settings.speed += 1
 
     def spawn_hitchhikers(self, now):
         is_time_to_spawn_hitchhikers = now - self.last_spawn_hitchhiker >= self.settings.spawn_hitchhiker
@@ -158,7 +158,7 @@ class Hitcher:
         time.sleep(3)
 
     def level_up(self):
-        return self.settings.score >= self.settings.lanes ^ 3 * 10
+        return self.settings.score >= self.settings.lanes * 10
 
     def handle_level_up(self):
         time.sleep(0.5)
@@ -168,7 +168,6 @@ class Hitcher:
         self.settings.display.blit(final_score, ( int(self.settings.screen_width / 2) - 200, int(self.settings.screen_height / 2) + 100) )
         self.settings.pg.display.update()
         for entity in self.settings.all_sprites:
-            entity.kill() 
-        self.settings.pg.mixer.pause()
-        time.sleep(3)
+            entity.kill()
+        time.sleep(2)
 
