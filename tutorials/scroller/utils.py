@@ -6,11 +6,12 @@ class Utils:
     @staticmethod
     def resource_path(*args):
         try:
-        # PyInstaller creates a temp folder and stores path in _MEIPASS
+            # PyInstaller creates a temp folder and stores path in _MEIPASS
             base_path = sys._MEIPASS
         except Exception:
             base_path = os.path.abspath(".")
-
+        for arg in args:
+            base_path = base_path.replace(os.path.pathsep + arg, '')
         return os.path.join(base_path, os.path.join(*args))
 
     @staticmethod

@@ -8,7 +8,7 @@ class Hitchhiker(pygame.sprite.Sprite):
         super().__init__()
         self.settings: Settings = settings
         self.id = random.choice([1,2,3,4,5,6])
-        self.image = self.settings.pg.image.load(Utils.resource_path('tutorials', 'scroller', f"hitchhiker{self.id}.png"))
+        self.image = self.settings.pg.image.load(self.settings.get_path('images', f'hitchhiker{self.id}.png'))
         self.rect = self.image.get_rect()
         sides = []
         left = self.settings.margin + int(self.settings.left_shoulder_width / 2)
@@ -27,4 +27,4 @@ class Hitchhiker(pygame.sprite.Sprite):
             self.kill()
 
     def play(self, reaction: str):
-        self.settings.pg.mixer.Sound(Utils.resource_path('tutorials', 'scroller', f'{reaction}{self.id}.wav')).play()
+        self.settings.pg.mixer.Sound(self.settings.get_path('sounds', f'{reaction}{self.id}.wav')).play()

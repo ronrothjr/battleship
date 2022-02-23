@@ -30,7 +30,7 @@ class Game:
         self.settings.display.blit(instructions, ( int(self.settings.screen_width / 2) - 400, int(self.settings.screen_height / 2) - 80) )
         self.settings.pg.display.update()
         time.sleep(2)
-        self.settings.pg.mixer.Sound(Utils.resource_path('tutorials', 'scroller', 'traffic.wav')).play()
+        self.settings.pg.mixer.Sound(self.settings.get_path('sounds', 'traffic.wav')).play()
         self.P1 = Player(self.settings)
         self.settings.all_sprites.add(self.P1)
 
@@ -155,7 +155,7 @@ class Game:
         return self.settings.pg.sprite.spritecollide(self.P1, self.settings.enemies, False, self.settings.pg.sprite.collide_mask)
 
     def handle_crash(self):
-        self.settings.pg.mixer.Sound(Utils.resource_path('tutorials', 'scroller', 'crash.wav')).play()
+        self.settings.pg.mixer.Sound(self.settings.get_path('sounds', 'crash.wav')).play()
         time.sleep(0.5)
         self.settings.display.fill(self.settings.red)
         self.settings.display.blit(self.settings.game_over, ( int(self.settings.screen_width / 2) - 150, int(self.settings.screen_height / 2) - 80) )

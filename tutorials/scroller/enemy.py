@@ -10,7 +10,7 @@ class Enemy(pygame.sprite.Sprite):
     def __init__(self, settings: Settings):
         super().__init__()
         self.settings = settings
-        self.image = self.settings.pg.image.load(Utils.resource_path('tutorials', 'scroller', "enemy.png"))
+        self.image = self.settings.pg.image.load(self.settings.get_path('images', "enemy.png"))
         self.rect = self.image.get_rect()
         self.lane = self.get_lane()
         x = self.get_x()

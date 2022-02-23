@@ -49,10 +49,13 @@ class Settings:
         self.level_up = self.font.render("Level Up", True, self.black)
         self.paused = self.font.render("PAUSED", True, self.black)
 
-        self.tile_image = self.pg.image.load(Utils.resource_path('tutorials', 'scroller', 'pavement_tile.png')).convert_alpha()
-        self.left_shoulder = self.pg.image.load(Utils.resource_path('tutorials', 'scroller', 'left_shoulder.png')).convert_alpha()
-        self.right_shoulder = self.pg.image.load(Utils.resource_path('tutorials', 'scroller', 'right_shoulder.png')).convert_alpha()
- 
+        self.tile_image = self.pg.image.load(self.get_path('images', 'pavement_tile.png')).convert_alpha()
+        self.left_shoulder = self.pg.image.load(self.get_path('images', 'left_shoulder.png')).convert_alpha()
+        self.right_shoulder = self.pg.image.load(self.get_path('images', 'right_shoulder.png')).convert_alpha()
+
+    def get_path(self, folder, file_name):
+        return Utils.resource_path('tutorials', 'scroller', 'assets', folder, file_name)
+
     def makeTiledImage( self, image, width, height ):
         x_cursor = 0
         y_cursor = 0

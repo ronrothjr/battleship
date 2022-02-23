@@ -2,10 +2,6 @@ import pygame, sys, os
 from game import Game
 from settings import Settings
 
-# abspath = os.path.abspath(__file__)
-# dname = os.path.dirname(abspath)
-# os.chdir(dname)
-
 
 class Hitcher:
 
