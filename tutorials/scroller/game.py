@@ -73,12 +73,10 @@ class Game:
         elif is_move:
             pos = (event.y if is_finger else event.pos[0]) / self.settings.screen_width
             click = self.settings.pg.mouse.get_pressed()
-            if click[2] or pos < 0.3:
+            if pos < 0.3 or pos > 0.7 or (is_mouse and click[2]):
                 move = 'boost'
             elif pos < 0.45:
                 move = 'left'
-            elif pos > 0.7:
-                move = 'boost'
             elif pos > 0.55:
                 move = 'right'
             else:
