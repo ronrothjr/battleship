@@ -1,13 +1,8 @@
-import os, time
+import time
 from player import Player
 from hitchhiker import Hitchhiker
 from enemy import Enemy
 from settings import Settings
-from utils import Utils
-
-# abspath = os.path.abspath(__file__)
-# dname = os.path.dirname(abspath)
-# os.chdir(dname)
 
 
 class Game:
@@ -70,7 +65,8 @@ class Game:
     def get_move(self, event):
         move = ''
         is_move = event.type == self.settings.pg.MOUSEBUTTONDOWN or event.type == self.settings.pg.MOUSEMOTION
-        is_stop_move = event.type == self.settings.pg.MOUSEBUTTONUP or event.type == self.settings.pg.KEYUP
+        is_move = is_move or event.type == self.settings.pg.FINGERDOWN or event.type == self.settings.pg.FINGERMOTION
+        is_stop_move = event.type == self.settings.pg.MOUSEBUTTONUP or event.type == self.settings.pg.KEYUP or event.type == self.settings.pg.FINGERUP
         if is_stop_move:
             move = ''
         elif is_move:
