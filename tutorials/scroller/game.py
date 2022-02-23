@@ -24,7 +24,8 @@ class Game:
         self.bg_placement = self.settings.tile_height * -1
         self.settings.pg.mouse.set_pos((int(self.settings.screen_width * 0.5), int(self.settings.screen_height * 0.8)))
 
-    def on_start(self):
+    def on_start(self, level: dict):
+        self.settings.set_game_difficulty(level)
         self.settings.display.fill(self.settings.gray)
         instructions = self.settings.font_medium.render(f"Rescue {self.settings.rescue} hitchhikers before {self.settings.squish} get{'s' if self.settings.squish == 1 else ''} squished", True, self.settings.black)
         self.settings.display.blit(instructions, ( int(self.settings.screen_width / 2) - 400, int(self.settings.screen_height / 2) - 80) )
@@ -76,7 +77,16 @@ class Game:
             pos = event.pos
             x = pos[0] / self.settings.screen_width
             click = self.settings.pg.mouse.get_pressed()
-            move = 'boost' if click[2] or x < 0.3 else ('left' if x < 0.45 else ('boost' if x > 0.7 else ('right' if x > 0.55 else '')))
+            if click[2] or x < 0.3:
+                move = 'boost'
+            elif x < 0.45:
+                move = 'left'
+            elif x > 0.7:
+                move = 'boost'
+            elif x > 0.55:
+                move = 'right'
+            else:
+                move = ''
         return move
 
     def handle_speed(self, now):
@@ -111,6 +121,7 @@ class Game:
         self.settings.display.blit(self.settings.right_shoulder, (self.settings.right_edge, 0))
 
     def move_all_sprites(self, move):
+        print(f'move: {move}')
         for entity in self.settings.all_sprites:
               self.settings.display.blit(entity.image, entity.rect)
               if entity == self.P1:

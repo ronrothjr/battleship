@@ -19,8 +19,7 @@ class Hitcher:
             level = self.settings.levels[self.level]
             self.alive = True
             self.leveled = False
-            self.settings.set_game_difficulty(level)
-            self.game.on_start()
+            self.game.on_start(level)
             while self.alive and not self.leveled:
                 now = self.settings.pg.time.get_ticks()
                 for event in self.settings.pg.event.get():
