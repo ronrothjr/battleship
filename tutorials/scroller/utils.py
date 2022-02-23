@@ -11,7 +11,8 @@ class Utils:
         except Exception:
             base_path = os.path.abspath(".")
         for arg in args:
-            base_path = base_path.replace(os.path.pathsep + arg, '')
+            sep = '/' if '/' in base_path else '\\'
+            base_path = base_path.replace(sep + arg, '')
         return os.path.join(base_path, os.path.join(*args))
 
     @staticmethod
