@@ -26,6 +26,7 @@ class Settings:
         self.TILE_WIDTH = 134
         self.TILE_HEIGHT = 164
         self.OFFSET_WIDTH = int( ( ( self.SCREEN_WIDTH - self.SHOULDER_WIDTH ) % self.TILE_WIDTH ) / 2 ) + ( self.LINE_WIDTH / 2 )
+
         self.SPEED = 5
         self.TURN_RADIUS = 30
         self.SCORE = 0
@@ -225,9 +226,12 @@ class Hitcher:
 
     def __init__(self, settings: Settings):
         self.settings: Settings = settings
+        self.on_init()
+
+    def on_init(self):
         self.framePerSec = self.settings.pg.time.Clock()
         self.PAUSED = False
-        self.P1 = Player(settings)
+        self.P1 = Player(self.settings)
         self.settings.all_sprites.add(self.P1)
         now = self.settings.pg.time.get_ticks()
         self.LAST_SPAWN_ENEMY = now
@@ -241,126 +245,150 @@ class Hitcher:
         while True:
             now = self.settings.pg.time.get_ticks()
             for event in self.settings.pg.event.get():
-                if self.PAUSED:
-                    if event.type in [self.settings.pg.KEYDOWN, self.settings.pg.MOUSEBUTTONDOWN, self.settings.pg.MOUSEMOTION]:
-                        self.PAUSED = False
-                        self.LAST_SPAWN_ENEMY = now - self.LAST_SPAWN_ENEMY
-                        self.LAST_INC_SPEED = now - self.LAST_INC_SPEED
-                        self.LAST_SPAWN_HITCHHIKER = now - self.LAST_SPAWN_HITCHHIKER
-                    else:
-                        continue
-                elif not self.PAUSED:
-                    y = 1
-                    if event.type == self.settings.pg.MOUSEBUTTONDOWN or event.type == self.settings.pg.MOUSEMOTION:
-                        pos = event.pos
-                        y = pos[1] / self.settings.SCREEN_HEIGHT
-                    if y < 0.3 or event.type == self.settings.pg.KEYDOWN and event.key == self.settings.pg.K_p:
-                        self.PAUSED = True
-                        self.LAST_SPAWN_ENEMY = now - self.LAST_SPAWN_ENEMY
-                        self.LAST_INC_SPEED = now - self.LAST_INC_SPEED
-                        self.LAST_SPAWN_HITCHHIKER = now - self.LAST_SPAWN_HITCHHIKER
-                        continue
-                if event.type == QUIT or event.type == self.settings.pg.KEYDOWN and event.key == self.settings.pg.K_ESCAPE:
+                self.handle_pause(event, now)
+                if self.is_quitting(event):
                     self.settings.pg.quit()
                     sys.exit()
-                if event.type == self.settings.pg.MOUSEBUTTONDOWN or event.type == self.settings.pg.MOUSEMOTION:
-                    pos = event.pos
-                    x = pos[0] / self.settings.SCREEN_WIDTH
-                    click = self.settings.pg.mouse.get_pressed()
-                    turn = 'boost' if click[2] or x < 0.3 else ('left' if x < 0.45 else ('boost' if x > 0.7 else ('right' if x > 0.55 else '')))
-                if event.type == self.settings.pg.MOUSEBUTTONUP:
-                    turn = ''
-
-            if self.PAUSED:
-                self.settings.DISPLAYSURF.blit(self.settings.paused, ( int(self.settings.SCREEN_WIDTH / 2) - 150, int(self.settings.SCREEN_HEIGHT / 2) - 80) )
-            
-            else:
-
-                if now - self.LAST_INC_SPEED >= self.settings.INC_SPEED and self.settings.SPEED < self.settings.MAX_SPEED:
-                    self.LAST_INC_SPEED = now
-                    self.settings.SPEED += 2
-                if now - self.LAST_SPAWN_HITCHHIKER >= self.settings.SPAWN_HITCHHIKER:
-                    self.LAST_SPAWN_HITCHHIKER = now
-                    hitcher = Hitchhiker(self.settings)
-                    self.settings.hitchers.add(hitcher)
-                    self.settings.all_sprites.add(hitcher)
-                if now - self.LAST_SPAWN_ENEMY >= self.settings.SPAWN_ENEMY and self.settings.enemies.__len__() < self.settings.MAX_ENEMIES:
-                    self.LAST_SPAWN_ENEMY = now
-                    enemy = Enemy(self.settings)
-                    self.settings.enemies.add(enemy)
-                    self.settings.all_sprites.add(enemy)
-
-                self.settings.DISPLAYSURF.fill(self.settings.WHITE)
-                self.settings.DISPLAYSURF.blit(self.settings.left_shoulder, (0 + self.settings.OFFSET_WIDTH, 0))
-                self.settings.DISPLAYSURF.blit(self.settings.background, (self.settings.LEFT_SHOULDER + self.settings.OFFSET_WIDTH, self.tile_placement))
-                self.tile_placement += int(self.settings.SPEED / 2)
-                if self.tile_placement > 0:
-                    self.tile_placement = self.settings.TILE_HEIGHT * -1
-                self.settings.DISPLAYSURF.blit(self.settings.right_shoulder, (self.settings.LEFT_SHOULDER + self.settings.OFFSET_WIDTH + self.settings.LANES_WIDTH, 0))
-
-                for entity in self.settings.all_sprites:
-                    self.settings.DISPLAYSURF.blit(entity.image, entity.rect)
-                    if entity == self.P1:
-                        turn = entity.move(turn)
-                    else:
-                        entity.move()
-
-                scores = self.settings.font_small.render(str(self.settings.SCORE), True, self.settings.BLACK)
-                self.settings.DISPLAYSURF.blit(scores, (10,10))
-                speed = self.settings.font_small.render(f'{str((self.settings.SPEED + self.P1.boost) * 2)} mph', True, self.settings.BLACK)
-                self.settings.DISPLAYSURF.blit(speed, (10,35))
-                speed_spawn = self.settings.font_small.render(f'{str(now - self.LAST_INC_SPEED)}', True, self.settings.BLACK)
-                self.settings.DISPLAYSURF.blit(speed_spawn, (110,35))
-                inc_speed = self.settings.font_small.render(f'{str(self.settings.INC_SPEED)}', True, self.settings.BLACK)
-                self.settings.DISPLAYSURF.blit(inc_speed, (210,35))
-                count = self.settings.font_small.render(str(self.settings.enemies.__len__()), True, self.settings.BLACK)
-                self.settings.DISPLAYSURF.blit(count, (10,60))
-                enemy_spawn = self.settings.font_small.render(f'{str(now - self.LAST_SPAWN_ENEMY)}', True, self.settings.BLACK)
-                self.settings.DISPLAYSURF.blit(enemy_spawn, (110,60))
-                spawn_enemy = self.settings.font_small.render(f'{str(self.settings.SPAWN_ENEMY)}', True, self.settings.BLACK)
-                self.settings.DISPLAYSURF.blit(spawn_enemy, (210,60))
-                hitch_spawn = self.settings.font_small.render(f'{str(now - self.LAST_SPAWN_HITCHHIKER)}', True, self.settings.BLACK)
-                self.settings.DISPLAYSURF.blit(hitch_spawn, (110,95))
-                hitcher = self.settings.font_small.render(f'{str(self.settings.SPAWN_HITCHHIKER)}', True, self.settings.BLACK)
-                self.settings.DISPLAYSURF.blit(hitcher, (210,95))
-                boost_left = self.settings.font.render('boost |', True, self.settings.BLACK)
-                self.settings.DISPLAYSURF.blit(boost_left, (int(self.settings.SCREEN_WIDTH * 0.15), self.settings.SCREEN_HEIGHT * 0.85))
-                left = self.settings.font.render('<', True, self.settings.BLACK)
-                self.settings.DISPLAYSURF.blit(left, (int(self.settings.SCREEN_WIDTH * 0.40), self.settings.SCREEN_HEIGHT * 0.85))
-                right = self.settings.font.render('>', True, self.settings.BLACK)
-                self.settings.DISPLAYSURF.blit(right, (int(self.settings.SCREEN_WIDTH * 0.57), self.settings.SCREEN_HEIGHT * 0.85))
-                boost_right = self.settings.font.render('| boost', True, self.settings.BLACK)
-                self.settings.DISPLAYSURF.blit(boost_right, (int(self.settings.SCREEN_WIDTH * 0.70), self.settings.SCREEN_HEIGHT * 0.85))
-                
-                for e in self.settings.enemies:
-                    squished = self.settings.pg.sprite.spritecollide(e, self.settings.hitchers, True, self.settings.pg.sprite.collide_mask)
-                    if squished:
-                        for h in squished:
-                            h.play('pain')
-                            h.kill()
-                
-                hitched = self.settings.pg.sprite.spritecollide(self.P1, self.settings.hitchers, True, self.settings.pg.sprite.collide_mask)
-                if hitched:
-                    for h in hitched:
-                        h.play('hitchhiker')
-                        self.settings.SCORE += 5
-
-                if self.settings.pg.sprite.spritecollide(self.P1, self.settings.enemies, False, self.settings.pg.sprite.collide_mask):
-                    self.settings.pg.mixer.Sound('crash.wav').play()
-                    time.sleep(0.5)
-                    self.settings.DISPLAYSURF.fill(self.settings.RED)
-                    self.settings.DISPLAYSURF.blit(self.settings.game_over, ( int(self.settings.SCREEN_WIDTH / 2) - 150, int(self.settings.SCREEN_HEIGHT / 2) - 80) )
-                    final_score = self.settings.font.render(f"Final Score: {self.settings.SCORE}", True, self.settings.BLACK)
-                    self.settings.DISPLAYSURF.blit(final_score, ( int(self.settings.SCREEN_WIDTH / 2) - 200, int(self.settings.SCREEN_HEIGHT / 2) + 100) )
-                    self.settings.pg.display.update()
-                    for entity in self.settings.all_sprites:
-                        entity.kill() 
-                    time.sleep(2)
+                move = self.get_move(event)
+            if not self.PAUSED:
+                self.handle_speed(now)
+                self.spawn_hitchhikers(now)
+                self.spawn_enemies(now)
+                self.scroll_pavement()
+                move = self.move_all_sprites(move)
+                self.display_info()
+                self.squish_hitchhikers()
+                self.pick_up_hitchhikers()
+                if self.is_crash():
+                    self.handle_crash()
                     pygame.quit()
                     sys.exit()
-                
             self.settings.pg.display.update()
             self.framePerSec.tick(self.settings.FPS)
+
+    def handle_pause(self, event, now):
+        if self.PAUSED:
+            if self.any_key(event):
+                self.unpause(now)
+        elif not self.PAUSED:
+            y = self.get_y(event)
+            if self.is_paused(y, event):
+                self.pause(now)
+        if self.PAUSED:
+            self.settings.DISPLAYSURF.blit(self.settings.paused, ( int(self.settings.SCREEN_WIDTH / 2) - 150, int(self.settings.SCREEN_HEIGHT / 2) - 80) )
+
+    def is_paused(self, y, event):
+        return y < 0.3 or event.type == self.settings.pg.KEYDOWN and event.key == self.settings.pg.K_p
+
+    def is_quitting(self, event):
+        return event.type == QUIT or event.type == self.settings.pg.KEYDOWN and event.key == self.settings.pg.K_ESCAPE
+        
+    def any_key(self, event):
+        return event.type in [self.settings.pg.KEYDOWN, self.settings.pg.MOUSEBUTTONDOWN, self.settings.pg.MOUSEMOTION]
+
+    def pause(self, now):
+        self.PAUSED = True
+        self.LAST_SPAWN_ENEMY = now - self.LAST_SPAWN_ENEMY
+        self.LAST_INC_SPEED = now - self.LAST_INC_SPEED
+        self.LAST_SPAWN_HITCHHIKER = now - self.LAST_SPAWN_HITCHHIKER
+
+    def unpause(self, now):
+        self.PAUSED = False
+        self.LAST_SPAWN_ENEMY = now - self.LAST_SPAWN_ENEMY
+        self.LAST_INC_SPEED = now - self.LAST_INC_SPEED
+        self.LAST_SPAWN_HITCHHIKER = now - self.LAST_SPAWN_HITCHHIKER
+
+    def get_y(self, event):
+        y = 1
+        if event.type == self.settings.pg.MOUSEBUTTONDOWN or event.type == self.settings.pg.MOUSEMOTION:
+            pos = event.pos
+            y = pos[1] / self.settings.SCREEN_HEIGHT
+        return y
+
+    def get_move(self, event):
+        if event.type == self.settings.pg.MOUSEBUTTONDOWN or event.type == self.settings.pg.MOUSEMOTION:
+            pos = event.pos
+            x = pos[0] / self.settings.SCREEN_WIDTH
+            click = self.settings.pg.mouse.get_pressed()
+            move = 'boost' if click[2] or x < 0.3 else ('left' if x < 0.45 else ('boost' if x > 0.7 else ('right' if x > 0.55 else '')))
+            if event.type == self.settings.pg.MOUSEBUTTONUP:
+                move = ''
+            return move
+
+    def handle_speed(self, now):
+        if now - self.LAST_INC_SPEED >= self.settings.INC_SPEED and self.settings.SPEED < self.settings.MAX_SPEED:
+            self.LAST_INC_SPEED = now
+            self.settings.SPEED += 2
+
+    def spawn_hitchhikers(self, now):
+        if now - self.LAST_SPAWN_HITCHHIKER >= self.settings.SPAWN_HITCHHIKER:
+            self.LAST_SPAWN_HITCHHIKER = now
+            hitcher = Hitchhiker(self.settings)
+            self.settings.hitchers.add(hitcher)
+            self.settings.all_sprites.add(hitcher)
+
+    def spawn_enemies(self, now):
+        if now - self.LAST_SPAWN_ENEMY >= self.settings.SPAWN_ENEMY and self.settings.enemies.__len__() < self.settings.MAX_ENEMIES:
+            self.LAST_SPAWN_ENEMY = now
+            enemy = Enemy(self.settings)
+            self.settings.enemies.add(enemy)
+            self.settings.all_sprites.add(enemy)
+
+    def scroll_pavement(self):
+        self.settings.DISPLAYSURF.fill(self.settings.WHITE)
+        self.settings.DISPLAYSURF.blit(self.settings.left_shoulder, (0 + self.settings.OFFSET_WIDTH, 0))
+        self.settings.DISPLAYSURF.blit(self.settings.background, (self.settings.LEFT_SHOULDER + self.settings.OFFSET_WIDTH, self.tile_placement))
+        self.tile_placement += int(self.settings.SPEED / 2)
+        if self.tile_placement > 0:
+            self.tile_placement = self.settings.TILE_HEIGHT * -1
+        self.settings.DISPLAYSURF.blit(self.settings.right_shoulder, (self.settings.LEFT_SHOULDER + self.settings.OFFSET_WIDTH + self.settings.LANES_WIDTH, 0))
+
+    def move_all_sprites(self, move):
+        for entity in self.settings.all_sprites:
+              self.settings.DISPLAYSURF.blit(entity.image, entity.rect)
+              if entity == self.P1:
+                    move = entity.move(move)
+              else:
+                    entity.move()
+        return move
+
+    def display_info(self):
+        scores = self.settings.font_small.render(str(self.settings.SCORE), True, self.settings.BLACK)
+        self.settings.DISPLAYSURF.blit(scores, (10,10))
+        speed = self.settings.font_small.render(f'{str((self.settings.SPEED + self.P1.boost) * 2)} mph', True, self.settings.BLACK)
+        self.settings.DISPLAYSURF.blit(speed, (10,35))
+        count = self.settings.font_small.render(str(self.settings.enemies.__len__()), True, self.settings.BLACK)
+        self.settings.DISPLAYSURF.blit(count, (10,60))
+
+    def squish_hitchhikers(self):
+        for e in self.settings.enemies:
+            squished = self.settings.pg.sprite.spritecollide(e, self.settings.hitchers, True, self.settings.pg.sprite.collide_mask)
+            if squished:
+                for h in squished:
+                    h.play('pain')
+                    h.kill()
+
+    def pick_up_hitchhikers(self):
+        hitched = self.settings.pg.sprite.spritecollide(self.P1, self.settings.hitchers, True, self.settings.pg.sprite.collide_mask)
+        if hitched:
+            for h in hitched:
+                h.play('hitchhiker')
+                self.settings.SCORE += 5
+
+    def is_crash(self):
+        return self.settings.pg.sprite.spritecollide(self.P1, self.settings.enemies, False, self.settings.pg.sprite.collide_mask)
+
+    def handle_crash(self):
+        self.settings.pg.mixer.Sound('crash.wav').play()
+        time.sleep(0.5)
+        self.settings.DISPLAYSURF.fill(self.settings.RED)
+        self.settings.DISPLAYSURF.blit(self.settings.game_over, ( int(self.settings.SCREEN_WIDTH / 2) - 150, int(self.settings.SCREEN_HEIGHT / 2) - 80) )
+        final_score = self.settings.font.render(f"Final Score: {self.settings.SCORE}", True, self.settings.BLACK)
+        self.settings.DISPLAYSURF.blit(final_score, ( int(self.settings.SCREEN_WIDTH / 2) - 200, int(self.settings.SCREEN_HEIGHT / 2) + 100) )
+        self.settings.pg.display.update()
+        for entity in self.settings.all_sprites:
+            entity.kill() 
+        time.sleep(2)
 
 
 if __name__ == '__main__':
