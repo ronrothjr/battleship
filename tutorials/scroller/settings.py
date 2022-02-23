@@ -20,6 +20,12 @@ class Settings:
         self.screen_width = self.info.current_w
         self.screen_height = self.info.current_h
 
+        self.levels = [
+            {'level': 1, 'speed': 5, 'lanes': 2},
+            {'level': 2, 'speed': 5, 'lanes': 4},
+            {'level': 3, 'speed': 5, 'lanes': 6},
+            {'level': 4, 'speed': 5, 'lanes': 8}
+        ]
         self.left_shoulder_width = 41
         self.right_shoulder_width = 45
         self.line_width = 18
@@ -36,7 +42,9 @@ class Settings:
         self.display.fill(self.white)
         self.pg.display.set_caption("Game")
         self.font = self.pg.font.SysFont("Verdana", 60)
+        self.font_medium = self.pg.font.SysFont("Verdana", 40)
         self.font_small = self.pg.font.SysFont("Verdana", 20)
+        self.instructions = self.font_medium.render("Rescue 5 hitchhikers before 3 get squished", True, self.black)
         self.game_over = self.font.render("Game Over", True, self.black)
         self.level_up = self.font.render("Level Up", True, self.black)
         self.paused = self.font.render("PAUSED", True, self.black)

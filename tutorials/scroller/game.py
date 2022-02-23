@@ -16,12 +16,14 @@ class Game:
         self.PAUSED = False
         self.alive = True
         self.leveled = False
+        self.level = 0
 
     def start(self):
-        for level in [(5, 2), (5, 4), (5, 6), (5, 8)]:
+        while True:
+            level = self.settings.levels[self.level]
             self.alive = True
             self.leveled = False
-            self.settings.set_game_difficulty(speed=level[0], lanes=level[1])
+            self.settings.set_game_difficulty(speed=level['speed'], lanes=level['lanes'])
             self.hitcher.on_start()
             while self.alive and not self.leveled:
                 now = self.settings.pg.time.get_ticks()
@@ -36,6 +38,8 @@ class Game:
                     self.leveled = result['leveled']
                     if not self.alive:
                         self.quit()
+                    if self.leveled:
+                        self.level = self.level + 1 if self.level < len(self.settings.levels) else 0
                 self.settings.pg.display.update()
                 self.framePerSec.tick(self.settings.fps)
 

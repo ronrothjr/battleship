@@ -24,6 +24,10 @@ class Hitcher:
         self.settings.pg.mouse.set_pos((int(self.settings.screen_width * 0.5), int(self.settings.screen_height * 0.8)))
 
     def on_start(self):
+        self.settings.display.fill(self.settings.gray)
+        self.settings.display.blit(self.settings.instructions, ( int(self.settings.screen_width / 2) - 400, int(self.settings.screen_height / 2) - 80) )
+        self.settings.pg.display.update()
+        time.sleep(2)
         self.settings.pg.mixer.Sound('traffic.wav').play()
         self.P1 = Player(self.settings)
         self.settings.all_sprites.add(self.P1)
@@ -140,7 +144,7 @@ class Hitcher:
         if hitched:
             for h in hitched:
                 h.play('ride')
-                self.settings.score += 5
+                self.settings.score += 1
 
     def is_crash(self):
         return self.settings.pg.sprite.spritecollide(self.P1, self.settings.enemies, False, self.settings.pg.sprite.collide_mask)
@@ -150,22 +154,22 @@ class Hitcher:
         time.sleep(0.5)
         self.settings.display.fill(self.settings.red)
         self.settings.display.blit(self.settings.game_over, ( int(self.settings.screen_width / 2) - 150, int(self.settings.screen_height / 2) - 80) )
-        final_score = self.settings.font.render(f"Final Score: {self.settings.score}", True, self.settings.black)
-        self.settings.display.blit(final_score, ( int(self.settings.screen_width / 2) - 200, int(self.settings.screen_height / 2) + 100) )
+        # final_score = self.settings.font.render(f"Final Score: {self.settings.score}", True, self.settings.black)
+        # self.settings.display.blit(final_score, ( int(self.settings.screen_width / 2) - 200, int(self.settings.screen_height / 2) + 100) )
         self.settings.pg.display.update()
         for entity in self.settings.all_sprites:
             entity.kill() 
         time.sleep(3)
 
     def level_up(self):
-        return self.settings.score >= self.settings.lanes * 10
+        return self.settings.score >= 5
 
     def handle_level_up(self):
         time.sleep(0.5)
         self.settings.display.fill(self.settings.green)
         self.settings.display.blit(self.settings.level_up, ( int(self.settings.screen_width / 2) - 150, int(self.settings.screen_height / 2) - 80) )
-        final_score = self.settings.font.render(f"Score: {self.settings.score}", True, self.settings.black)
-        self.settings.display.blit(final_score, ( int(self.settings.screen_width / 2) - 200, int(self.settings.screen_height / 2) + 100) )
+        # final_score = self.settings.font.render(f"Score: {self.settings.score}", True, self.settings.black)
+        # self.settings.display.blit(final_score, ( int(self.settings.screen_width / 2) - 200, int(self.settings.screen_height / 2) + 100) )
         self.settings.pg.display.update()
         for entity in self.settings.all_sprites:
             entity.kill()

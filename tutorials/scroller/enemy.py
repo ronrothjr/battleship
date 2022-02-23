@@ -37,7 +37,6 @@ class Enemy(pygame.sprite.Sprite):
     def move(self):
         self.rect.move_ip(0, int( int(self.settings.speed * 0.65) + int( ( (self.settings.speed / 2) * self.speed ) ) ))
         if (self.rect.bottom > self.settings.screen_height + self.image.get_height()):
-            self.settings.score += 1
             self.rect.top = 0
             self.lane = self.get_lane()
             x = self.get_x()
