@@ -22,10 +22,12 @@ class Settings:
         self.screen_height = self.info.current_h
 
         self.levels = [
-            {'level': 1, 'speed': 5, 'lanes': 2, 'rescue': 4, 'squish': 1},
-            {'level': 2, 'speed': 5, 'lanes': 4, 'rescue': 5, 'squish': 2},
-            {'level': 3, 'speed': 5, 'lanes': 6, 'rescue': 7, 'squish': 2},
-            {'level': 4, 'speed': 5, 'lanes': 8, 'rescue': 8, 'squish': 3}
+            {'level': 1, 'speed': 5, 'max': 8, 'lanes': 2, 'rescue': 4, 'squish': 1},
+            {'level': 2, 'speed': 5, 'max': 8, 'lanes': 3, 'rescue': 5, 'squish': 2},
+            {'level': 3, 'speed': 5, 'max': 9, 'lanes': 4, 'rescue': 7, 'squish': 3},
+            {'level': 4, 'speed': 6, 'max': 9, 'lanes': 5, 'rescue': 10, 'squish': 4},
+            {'level': 5, 'speed': 6, 'max': 10, 'lanes': 6, 'rescue': 12, 'squish': 5},
+            {'level': 6, 'speed': 6, 'max': 10, 'lanes': 7, 'rescue': 15, 'squish': 6}
         ]
         self.left_shoulder_width = 41
         self.right_shoulder_width = 45
@@ -73,6 +75,7 @@ class Settings:
         self.lanes = level['lanes']
         self.rescue = level['rescue']
         self.squish = level['squish']
+        self.max_speed = level['max']
         self.rescued = 0
         self.squished = 0
         self.lanes_width = self.lanes * self.tile_width - self.line_width
