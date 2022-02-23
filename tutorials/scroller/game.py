@@ -64,14 +64,15 @@ class Game:
 
     def get_move(self, event):
         move = ''
-        is_move = event.type == self.settings.pg.MOUSEBUTTONDOWN or event.type == self.settings.pg.MOUSEMOTION
-        is_move = is_move or event.type == self.settings.pg.FINGERDOWN or event.type == self.settings.pg.FINGERMOTION
+        is_mouse = event.type == self.settings.pg.MOUSEBUTTONDOWN or event.type == self.settings.pg.MOUSEMOTION
+        is_finger = event.type in [self.settings.pg.FINGERDOWN, self.settings.pg.FINGERMOTION]
+        is_move = is_mouse or is_finger
         is_stop_move = event.type == self.settings.pg.MOUSEBUTTONUP or event.type == self.settings.pg.KEYUP or event.type == self.settings.pg.FINGERUP
         if is_stop_move:
             move = ''
         elif is_move:
             pos = event.pos
-            x = pos[0] / self.settings.screen_width
+            x = (event.x if is_finger else pos[0]) / self.settings.screen_width
             click = self.settings.pg.mouse.get_pressed()
             if click[2] or x < 0.3:
                 move = 'boost'
