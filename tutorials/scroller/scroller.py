@@ -16,7 +16,7 @@ class Settings:
         self.BLACK = (0, 0, 0)
         self.WHITE = (255, 255, 255)
         
-        self.info = pg.display.Info()
+        self.info = self.pg.display.Info()
         self.SCREEN_WIDTH = self.info.current_w
         self.SCREEN_HEIGHT = self.info.current_h
         self.LEFT_SHOULDER = 41
@@ -25,7 +25,7 @@ class Settings:
         self.SHOULDER_WIDTH = self.LEFT_SHOULDER + self.RIGHT_SHOULDER
         self.TILE_WIDTH = 134
         self.TILE_HEIGHT = 164
-        self.OFFSET_WIDTH = int( ( ( self.SCREEN_WIDTH - self.SHOULDER_WIDTH ) % self.TILE_WIDTH ) / 2 ) + ( self.LINE_WIDTH / 2 )
+        self.MARGIN = int( ( ( self.SCREEN_WIDTH - self.SHOULDER_WIDTH ) % self.TILE_WIDTH ) / 2 ) + ( self.LINE_WIDTH / 2 )
 
         self.SPEED = 5
         self.TURN_RADIUS = 30
@@ -40,6 +40,7 @@ class Settings:
         self.MAX_SPEED = 10
         self.DISPLAYSURF = self.pg.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT), pg.NOFRAME | pg.FULLSCREEN | pg.RESIZABLE)
         self.DISPLAYSURF.fill(self.WHITE)
+
         self.pg.display.set_caption("Game")
         self.font = self.pg.font.SysFont("Verdana", 60)
         self.font_small = self.pg.font.SysFont("Verdana", 20)
@@ -50,7 +51,6 @@ class Settings:
         self.background = self.makeTiledImage( self.tile_image, self.LANES_WIDTH, self.SCREEN_HEIGHT )
         self.left_shoulder = self.pg.image.load('left_shoulder.png').convert_alpha()
         self.right_shoulder = self.pg.image.load('right_shoulder.png').convert_alpha()
-        self.turn = ''
 
         self.enemies = self.pg.sprite.Group()
         self.hitchers = self.pg.sprite.Group()
@@ -78,7 +78,7 @@ class Enemy(pygame.sprite.Sprite):
         self.image = self.settings.pg.image.load("enemy.png")
         self.rect = self.image.get_rect()
         self.lane = self.get_lane()
-        x = settings.OFFSET_WIDTH + settings.LEFT_SHOULDER + ( self.lane * settings.TILE_WIDTH ) - int( settings.TILE_WIDTH / 2 ) - int( self.rect.width / 2 )
+        x = settings.MARGIN + settings.LEFT_SHOULDER + ( self.lane * settings.TILE_WIDTH ) - int( settings.TILE_WIDTH / 2 ) - int( self.rect.width / 2 )
         self.rect.center=(x,0)
         self.mask = self.settings.pg.mask.from_surface(self.image)
         self.speed = settings.ENEMY_SPEEDS.pop(random.randrange(0, len(settings.ENEMY_SPEEDS)))
@@ -102,7 +102,7 @@ class Enemy(pygame.sprite.Sprite):
             self.settings.SCORE += 1
             self.rect.top = 0
             self.lane = self.get_lane()
-            x = self.settings.OFFSET_WIDTH + self.settings.LEFT_SHOULDER + ( self.lane * int( self.settings.TILE_WIDTH / 2 ) ) - int( self.settings.TILE_WIDTH / 2 )
+            x = self.settings.MARGIN + self.settings.LEFT_SHOULDER + ( self.lane * int( self.settings.TILE_WIDTH / 2 ) ) - int( self.settings.TILE_WIDTH / 2 )
             self.rect.center = (x, 0)
 
 
@@ -123,13 +123,13 @@ class Player(pygame.sprite.Sprite):
         self.mask = self.settings.pg.mask.from_surface(self.image)
         self.turning = None
 
-    def move(self, turn: str=''):
+    def move(self, move: str=''):
         pressed_keys = self.settings.pg.key.get_pressed()
-        up = self.rect.topleft[1] > self.settings.SCREEN_HEIGHT * 0.55 and (turn == 'boost' or pressed_keys[K_UP] or pressed_keys[K_w])
+        up = self.rect.topleft[1] > self.settings.SCREEN_HEIGHT * 0.55 and (move == 'boost' or pressed_keys[K_UP] or pressed_keys[K_w])
         not_bottom = self.rect.bottomright[1] < self.settings.SCREEN_HEIGHT * 0.8 + int( self.rect.height / 2 )
         down = not_bottom and (pressed_keys[K_SPACE])
-        left = self.rect.left > self.settings.OFFSET_WIDTH + self.settings.LEFT_SHOULDER and (turn == 'left' or pressed_keys[K_LEFT] or pressed_keys[K_a])
-        right = self.rect.right < self.settings.SCREEN_WIDTH - self.settings.RIGHT_SHOULDER and (turn == 'right' or pressed_keys[K_RIGHT] or pressed_keys[K_d])
+        left = self.rect.left > self.settings.MARGIN + self.settings.LEFT_SHOULDER and (move == 'left' or pressed_keys[K_LEFT] or pressed_keys[K_a])
+        right = self.rect.right < self.settings.SCREEN_WIDTH - self.settings.RIGHT_SHOULDER and (move == 'right' or pressed_keys[K_RIGHT] or pressed_keys[K_d])
         x_change = 0
         y_change = 0
 
@@ -144,11 +144,11 @@ class Player(pygame.sprite.Sprite):
                     self.boost += int(self.settings.SPEED / 5)
                 else:
                     self.boosting = False
-            turn = 'up'
+            move = 'up'
 
         elif down:
             y_change = int(self.settings.SPEED / 2)
-            turn = 'down'
+            move = 'down'
 
         if left:
             if self.angle < self.settings.TURN_RADIUS:
@@ -162,27 +162,30 @@ class Player(pygame.sprite.Sprite):
             self.turning = 'right' if self.angle > -self.settings.TURN_RADIUS else 'left'
             x_change = int((self.settings.SPEED + self.boost) / 3 * (self.angle / self.settings.TURN_RADIUS * -1))
             self.set_rotation()
+
         if self.boost > 0:
             y_change -= self.boost
             if not up:
                 self.boost -= int(self.settings.SPEED / 5)
         elif not_bottom:
             y_change += int(self.settings.SPEED / 5)
+
         if self.recharge > 0:
             self.recharge -= int(self.settings.SPEED / 5)
-        if self.left + x_change < self.settings.OFFSET_WIDTH + self.settings.LEFT_SHOULDER:
-            x_change = self.left - (self.settings.OFFSET_WIDTH + self.settings.LEFT_SHOULDER)
+
+        if self.left + x_change < self.settings.MARGIN + self.settings.LEFT_SHOULDER:
+            x_change = self.left - (self.settings.MARGIN + self.settings.LEFT_SHOULDER)
         if self.left + self.rect.width + x_change > self.settings.SCREEN_WIDTH - self.settings.RIGHT_SHOULDER:
             x_change = (self.settings.SCREEN_WIDTH - self.settings.RIGHT_SHOULDER) - (self.left + self.rect.width)
         self.left += x_change
         self.top += y_change
         self.rect.move_ip(x_change, y_change)
         if not up and not down and not left and not right:
-            turn = ''
+            move = ''
             if self.angle != 0 and self.angle <=self.settings.TURN_RADIUS and self.angle >= -self.settings.TURN_RADIUS:
                 self.angle += -int(self.settings.SPEED / 5) * 2 if self.angle > 0 else int(self.settings.SPEED / 5) * 2
                 self.set_rotation()
-        return turn
+        return move
 
     def set_rotation(self):
         self.image = copy.copy(self.original_image)
@@ -204,9 +207,9 @@ class Hitchhiker(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.mask = self.settings.pg.mask.from_surface(self.image)
         sides = []
-        left = self.settings.OFFSET_WIDTH + int(self.settings.LEFT_SHOULDER / 2)
+        left = self.settings.MARGIN + int(self.settings.LEFT_SHOULDER / 2)
         sides.append(left)
-        right = self.settings.OFFSET_WIDTH + self.settings.LEFT_SHOULDER + self.settings.LANES_WIDTH + int(self.settings.RIGHT_SHOULDER / 2)
+        right = self.settings.MARGIN + self.settings.LEFT_SHOULDER + self.settings.LANES_WIDTH + int(self.settings.RIGHT_SHOULDER / 2)
         sides.append(right)
         side = random.choice(sides)
         if side == left:
@@ -256,12 +259,12 @@ class Hitcher:
                 self.spawn_enemies(now)
                 self.scroll_pavement()
                 move = self.move_all_sprites(move)
-                self.display_info()
                 self.squish_hitchhikers()
                 self.pick_up_hitchhikers()
+                self.display_info()
                 if self.is_crash():
                     self.handle_crash()
-                    pygame.quit()
+                    self.settings.pg.quit()
                     sys.exit()
             self.settings.pg.display.update()
             self.framePerSec.tick(self.settings.FPS)
@@ -336,12 +339,12 @@ class Hitcher:
 
     def scroll_pavement(self):
         self.settings.DISPLAYSURF.fill(self.settings.WHITE)
-        self.settings.DISPLAYSURF.blit(self.settings.left_shoulder, (0 + self.settings.OFFSET_WIDTH, 0))
-        self.settings.DISPLAYSURF.blit(self.settings.background, (self.settings.LEFT_SHOULDER + self.settings.OFFSET_WIDTH, self.tile_placement))
+        self.settings.DISPLAYSURF.blit(self.settings.left_shoulder, (0 + self.settings.MARGIN, 0))
+        self.settings.DISPLAYSURF.blit(self.settings.background, (self.settings.LEFT_SHOULDER + self.settings.MARGIN, self.tile_placement))
         self.tile_placement += int(self.settings.SPEED / 2)
         if self.tile_placement > 0:
             self.tile_placement = self.settings.TILE_HEIGHT * -1
-        self.settings.DISPLAYSURF.blit(self.settings.right_shoulder, (self.settings.LEFT_SHOULDER + self.settings.OFFSET_WIDTH + self.settings.LANES_WIDTH, 0))
+        self.settings.DISPLAYSURF.blit(self.settings.right_shoulder, (self.settings.LEFT_SHOULDER + self.settings.MARGIN + self.settings.LANES_WIDTH, 0))
 
     def move_all_sprites(self, move):
         for entity in self.settings.all_sprites:
@@ -359,6 +362,14 @@ class Hitcher:
         self.settings.DISPLAYSURF.blit(speed, (10,35))
         count = self.settings.font_small.render(str(self.settings.enemies.__len__()), True, self.settings.BLACK)
         self.settings.DISPLAYSURF.blit(count, (10,60))
+        boost_left = self.settings.font.render('boost |', True, self.settings.BLACK)
+        self.settings.DISPLAYSURF.blit(boost_left, (int(self.settings.SCREEN_WIDTH * 0.15), self.settings.SCREEN_HEIGHT * 0.85))
+        left = self.settings.font.render('<', True, self.settings.BLACK)
+        self.settings.DISPLAYSURF.blit(left, (int(self.settings.SCREEN_WIDTH * 0.40), self.settings.SCREEN_HEIGHT * 0.85))
+        right = self.settings.font.render('>', True, self.settings.BLACK)
+        self.settings.DISPLAYSURF.blit(right, (int(self.settings.SCREEN_WIDTH * 0.57), self.settings.SCREEN_HEIGHT * 0.85))
+        boost_right = self.settings.font.render('| boost', True, self.settings.BLACK)
+        self.settings.DISPLAYSURF.blit(boost_right, (int(self.settings.SCREEN_WIDTH * 0.70), self.settings.SCREEN_HEIGHT * 0.85))
 
     def squish_hitchhikers(self):
         for e in self.settings.enemies:
