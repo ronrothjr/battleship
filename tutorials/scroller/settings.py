@@ -1,8 +1,9 @@
 import pygame, os
+from utils import Utils
 
-abspath = os.path.abspath(__file__)
-dname = os.path.dirname(abspath)
-os.chdir(dname)
+# abspath = os.path.abspath(__file__)
+# dname = os.path.dirname(abspath)
+# os.chdir(dname)
 
 class Settings:
 
@@ -21,10 +22,10 @@ class Settings:
         self.screen_height = self.info.current_h
 
         self.levels = [
-            {'level': 1, 'speed': 5, 'lanes': 2},
-            {'level': 2, 'speed': 5, 'lanes': 4},
-            {'level': 3, 'speed': 5, 'lanes': 6},
-            {'level': 4, 'speed': 5, 'lanes': 8}
+            {'level': 1, 'speed': 5, 'lanes': 2, 'rescue': 4, 'squish': 1},
+            {'level': 2, 'speed': 5, 'lanes': 4, 'rescue': 5, 'squish': 2},
+            {'level': 3, 'speed': 5, 'lanes': 6, 'rescue': 7, 'squish': 2},
+            {'level': 4, 'speed': 5, 'lanes': 8, 'rescue': 8, 'squish': 3}
         ]
         self.left_shoulder_width = 41
         self.right_shoulder_width = 45
@@ -38,20 +39,19 @@ class Settings:
         self.inc_speed = 15000
         self.spawn_hitchhiker = 5000
 
-        self.display = self.pg.display.set_mode((self.screen_width, self.screen_height), pg.RESIZABLE)
+        self.display = self.pg.display.set_mode((self.screen_width, self.screen_height), pg.FULLSCREEN | pg.RESIZABLE)
         self.display.fill(self.white)
         self.pg.display.set_caption("Game")
         self.font = self.pg.font.SysFont("Verdana", 60)
         self.font_medium = self.pg.font.SysFont("Verdana", 40)
         self.font_small = self.pg.font.SysFont("Verdana", 20)
-        self.instructions = self.font_medium.render("Rescue 5 hitchhikers before 3 get squished", True, self.black)
         self.game_over = self.font.render("Game Over", True, self.black)
         self.level_up = self.font.render("Level Up", True, self.black)
         self.paused = self.font.render("PAUSED", True, self.black)
 
-        self.tile_image = self.pg.image.load('pavement_tile.png').convert_alpha()
-        self.left_shoulder = self.pg.image.load('left_shoulder.png').convert_alpha()
-        self.right_shoulder = self.pg.image.load('right_shoulder.png').convert_alpha()
+        self.tile_image = self.pg.image.load(Utils.resource_path('tutorials', 'scroller', 'pavement_tile.png')).convert_alpha()
+        self.left_shoulder = self.pg.image.load(Utils.resource_path('tutorials', 'scroller', 'left_shoulder.png')).convert_alpha()
+        self.right_shoulder = self.pg.image.load(Utils.resource_path('tutorials', 'scroller', 'right_shoulder.png')).convert_alpha()
  
     def makeTiledImage( self, image, width, height ):
         x_cursor = 0
@@ -65,10 +65,12 @@ class Settings:
             x_cursor = 0
         return tiled_image
 
-    def set_game_difficulty(self, speed: int, lanes: int):
-        self.speed = speed
-        self.lanes = lanes
-        self.score = 0
+    def set_game_difficulty(self, level):
+        self.speed = level['speed']
+        self.lanes = level['lanes']
+        self.rescue = level['rescue']
+        self.squish = level['squish']
+        self.rescued = 0
         self.squished = 0
         self.lanes_width = self.lanes * self.tile_width - self.line_width
         self.margin = int( ( self.screen_width - self.shoulder_width - self.lanes_width ) / 2 )

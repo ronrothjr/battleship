@@ -1,16 +1,17 @@
 import pygame, os, copy
 from settings import Settings
+from utils import Utils
 
-abspath = os.path.abspath(__file__)
-dname = os.path.dirname(abspath)
-os.chdir(dname)
+# abspath = os.path.abspath(__file__)
+# dname = os.path.dirname(abspath)
+# os.chdir(dname)
 
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, settings: Settings):
         super().__init__()
         self.settings: Settings = settings
-        self.image = self.settings.pg.image.load("player.png")
+        self.image = self.settings.pg.image.load(Utils.resource_path('tutorials', 'scroller', "player.png"))
         self.original_image = copy.copy(self.image)
         self.rect = self.image.get_rect()
         self.rect.center = (int(self.settings.screen_width / 2), int(self.settings.screen_height * 0.8))
@@ -43,7 +44,7 @@ class Player(pygame.sprite.Sprite):
                     self.boosting = True
                 if self.boost < self.settings.speed:
                     if self.boost == 0:
-                        self.settings.pg.mixer.Sound('boost.wav').play()
+                        self.settings.pg.mixer.Sound(Utils.resource_path('tutorials', 'scroller', 'boost.wav')).play()
                     self.boost += int(self.settings.speed / 5)
                 else:
                     self.boosting = False

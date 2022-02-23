@@ -1,15 +1,16 @@
 import pygame, os, random
 from settings import Settings
+from utils import Utils
 
-abspath = os.path.abspath(__file__)
-dname = os.path.dirname(abspath)
-os.chdir(dname)
+# abspath = os.path.abspath(__file__)
+# dname = os.path.dirname(abspath)
+# os.chdir(dname)
 
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, settings: Settings):
         super().__init__()
         self.settings = settings
-        self.image = self.settings.pg.image.load("enemy.png")
+        self.image = self.settings.pg.image.load(Utils.resource_path('tutorials', 'scroller', "enemy.png"))
         self.rect = self.image.get_rect()
         self.lane = self.get_lane()
         x = self.get_x()
