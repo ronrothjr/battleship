@@ -14,21 +14,30 @@ class Game:
         self.hitcher: Hitcher = Hitcher(self.settings)
         self.framePerSec = self.settings.pg.time.Clock()
         self.PAUSED = False
+        self.alive = True
+        self.leveled = False
 
     def start(self):
-        self.hitcher.on_start()
-        while True:
-            now = self.settings.pg.time.get_ticks()
-            for event in self.settings.pg.event.get():
-                self.handle_pause(event, now)
-                if self.is_quitting(event):
-                    self.quit()
-                move = self.hitcher.get_move(event)
-            if not self.PAUSED:
-                if not self.hitcher.on_loop(now, move):
-                    self.quit()
-            self.settings.pg.display.update()
-            self.framePerSec.tick(self.settings.fps)
+        for level in [(5, 2), (5, 4), (5, 6), (5, 8)]:
+            self.alive = True
+            self.leveled = False
+            self.settings.set_game_difficulty(speed=level[0], lanes=level[1])
+            self.hitcher.on_start()
+            while self.alive and not self.leveled:
+                now = self.settings.pg.time.get_ticks()
+                for event in self.settings.pg.event.get():
+                    self.handle_pause(event, now)
+                    if self.is_quitting(event):
+                        self.quit()
+                    move = self.hitcher.get_move(event)
+                if not self.PAUSED:
+                    result = self.hitcher.on_loop(now, move)
+                    self.alive = result['alive']
+                    self.leveled = result['leveled']
+                    if not self.alive:
+                        self.quit()
+                self.settings.pg.display.update()
+                self.framePerSec.tick(self.settings.fps)
 
     def handle_pause(self, event, now):
         if self.PAUSED:

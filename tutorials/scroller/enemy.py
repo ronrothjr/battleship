@@ -18,11 +18,9 @@ class Enemy(pygame.sprite.Sprite):
         self.speed = settings.enemy_speeds.pop(random.randrange(0, len(settings.enemy_speeds)))
 
     def get_lane(self):
-        lane = random.randint(1, self.settings.lanes * 2)
-        lane = lane - 1 if lane == self.settings.lanes * 2 else lane
+        lane = random.randint(0, self.settings.lanes * 2)
         while not self.is_lane_empty(lane):
-            lane = random.randint(1, self.settings.lanes * 2)
-            lane = lane - 1 if lane == self.settings.lanes * 2 else lane
+            lane = random.randint(0, self.settings.lanes * 2)
         return lane
 
     def is_lane_empty(self, lane):
