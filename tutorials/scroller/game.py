@@ -67,15 +67,17 @@ class Game:
         return {'alive': alive, 'leveled': leveled}
 
     def get_move(self, event):
+        move = ''
         is_move = event.type == self.settings.pg.MOUSEBUTTONDOWN or event.type == self.settings.pg.MOUSEMOTION
-        if is_move:
+        is_stop_move = event.type == self.settings.pg.MOUSEBUTTONUP or event.type == self.settings.pg.KEYUP
+        if is_stop_move:
+            move = ''
+        elif is_move:
             pos = event.pos
             x = pos[0] / self.settings.screen_width
             click = self.settings.pg.mouse.get_pressed()
             move = 'boost' if click[2] or x < 0.3 else ('left' if x < 0.45 else ('boost' if x > 0.7 else ('right' if x > 0.55 else '')))
-            if event.type == self.settings.pg.MOUSEBUTTONUP or event.type == self.settings.pg.KEYUP:
-                move = ''
-            return move
+        return move
 
     def handle_speed(self, now):
         is_time_to_increase_speed = now - self.last_inc_speed >= self.settings.inc_speed and self.settings.speed < self.settings.max_speed
