@@ -7,19 +7,13 @@ class Hitcher:
 
     def __init__(self, pg: pygame, Settings: Settings, Game: Game):
         self.settings: Settings = Settings(pg)
-        self.game: Game = Game(self.settings)
-        self.framePerSec = self.settings.pg.time.Clock()
-        self.PAUSED = False
-        self.alive = True
-        self.leveled = False
+        self.Game = Game
+        self.game = None
         self.level = 0
 
     def start(self):
         while True:
-            level = self.settings.levels[self.level]
-            self.alive = True
-            self.leveled = False
-            self.game.on_start(level)
+            self.level = self.on_start()
             while self.alive and not self.leveled:
                 now = self.settings.pg.time.get_ticks()
                 for event in self.settings.pg.event.get():
@@ -37,6 +31,15 @@ class Hitcher:
                         self.level = self.level + 1 if self.level + 1 < len(self.settings.levels) else 0
                 self.settings.pg.display.update()
                 self.framePerSec.tick(self.settings.fps)
+
+    def on_start(self):
+        self.level = self.settings.levels[self.level]
+        self.game: Game = self.Game(self.settings)
+        self.framePerSec = self.settings.pg.time.Clock()
+        self.PAUSED = False
+        self.alive = True
+        self.leveled = False
+        self.game.on_start(self.level)
 
     def handle_pause(self, event, now):
         if self.PAUSED:

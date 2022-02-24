@@ -1,4 +1,4 @@
-import pygame, os
+import pygame, copy
 from utils import Utils
 
 # abspath = os.path.abspath(__file__)
@@ -29,11 +29,17 @@ class Settings:
             {'level': 5, 'speed': 7, 'max': 9, 'lanes': 6, 'rescue': 12, 'squish': 5},
             {'level': 6, 'speed': 7, 'max': 9, 'lanes': 7, 'rescue': 15, 'squish': 6}
         ]
+        self.original_left_shoulder_width = 41
         self.left_shoulder_width = 41
+        self.original_right_shoulder_width = 45
         self.right_shoulder_width = 45
+        self.original_line_width = 18
         self.line_width = 18
+        self.original_shoulder_width = self.left_shoulder_width + self.right_shoulder_width
         self.shoulder_width = self.left_shoulder_width + self.right_shoulder_width
+        self.original_tile_width = 134
         self.tile_width = 134
+        self.original_tile_height = 164
         self.tile_height = 164
         self.turn_radius = 30
         self.fps = 60
@@ -61,19 +67,23 @@ class Settings:
     def makeTiledImage( self, image, width, height ):
         x_cursor = 0
         y_cursor = 0
-        tiled_image = self.pg.Surface( ( width, height + (self.tile_height * 2) ) )
-        while ( y_cursor < height + image.get_height() ):
+        tiled_image = self.pg.Surface( ( width, height + self.tile_height * 2 ) )
+        i = self.scale_image(copy.copy(image))
+        while ( y_cursor < height + i.get_height() ):
             while ( x_cursor < width ):
-                tiled_image.blit( image, ( x_cursor, y_cursor ) )
-                x_cursor += image.get_width()
-            y_cursor += image.get_height()
+                tiled_image.blit( i, ( x_cursor, y_cursor ) )
+                x_cursor += i.get_width()
+            y_cursor += i.get_height()
             x_cursor = 0
         return tiled_image
 
-    def get_scale(self):
-        original = self.shoulder_width + self.tile_width * self.lanes
-        scale = self.screen_width - 120 / original
-        return scale
+    def scale(self, x: int):
+        original = self.original_shoulder_width + (self.original_tile_width * self.lanes)
+        scale = 1 if self.screen_height < self.screen_width else (self.screen_width - 120) / original
+        return int( x * scale )
+
+    def scale_image(self, i):
+        return self.pg.transform.scale(i, (self.scale(i.get_width()), self.scale(i.get_height())))
 
     def set_game_difficulty(self, level):
         self.speed = level['speed']
@@ -81,10 +91,24 @@ class Settings:
         self.rescue = level['rescue']
         self.squish = level['squish']
         self.max_speed = level['max']
+        print(f'level: {level}')
+        print(f'scale: {self.scale(1)}')
+        self.left_shoulder_width = self.scale(self.original_left_shoulder_width)
+        self.right_shoulder_width = self.scale(self.original_right_shoulder_width)
+        self.line_width = self.scale(self.original_line_width)
+        self.shoulder_width = self.scale(self.original_shoulder_width)
+        self.tile_width = self.scale(self.original_tile_width)
+        self.tile_height = self.scale(self.original_tile_height)
+        print(f'left_shoulder_width: {self.left_shoulder_width}')
+        print(f'right_shoulder_width: {self.right_shoulder_width}')
+        print(f'line_width: {self.line_width}')
+        print(f'shoulder_width: {self.shoulder_width}')
+        print(f'tile_width: {self.tile_width}')
+        print(f'tile_height: {self.tile_height}')
         self.rescued = 0
         self.squished = 0
         self.lanes_width = self.lanes * self.tile_width - self.line_width
-        self.margin = int( ( self.screen_width - self.shoulder_width - self.lanes_width ) / 2 )
+        self.margin = 60 if self.screen_height > self.screen_width else int( ( self.screen_width - self.shoulder_width - self.lanes_width ) / 2 )
         self.left_edge = self.margin + self.left_shoulder_width
         self.right_edge = self.screen_width - self.margin - self.right_shoulder_width
         self.max_enemies = int(self.lanes * 0.6)

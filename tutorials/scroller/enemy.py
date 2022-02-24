@@ -11,6 +11,7 @@ class Enemy(pygame.sprite.Sprite):
         super().__init__()
         self.settings = settings
         self.image = self.settings.pg.image.load(self.settings.get_path('images', "enemy.png"))
+        self.image = self.settings.scale_image(self.image)
         self.rect = self.image.get_rect()
         self.lane = self.get_lane()
         x = self.get_x()

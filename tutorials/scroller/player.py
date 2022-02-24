@@ -12,6 +12,7 @@ class Player(pygame.sprite.Sprite):
         super().__init__()
         self.settings: Settings = settings
         self.image = self.settings.pg.image.load(self.settings.get_path('images', "player.png"))
+        self.image = self.settings.scale_image(self.image)
         self.original_image = copy.copy(self.image)
         self.rect = self.image.get_rect()
         self.rect.center = (int(self.settings.screen_width / 2), int(self.settings.screen_height * 0.8))

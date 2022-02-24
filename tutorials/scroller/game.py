@@ -1,4 +1,4 @@
-import time
+import time, copy
 from player import Player
 from hitchhiker import Hitchhiker
 from enemy import Enemy
@@ -14,9 +14,13 @@ class Game:
     def on_init(self):
         self.bg_placement = self.settings.tile_height * -1
         self.settings.pg.mouse.set_pos((int(self.settings.screen_width * 0.5), int(self.settings.screen_height * 0.8)))
+        self.left_shoulder = None
+        self.right_shoulder = None
 
     def on_start(self, level: dict):
         self.settings.set_game_difficulty(level)
+        self.left_shoulder = self.settings.scale_image(copy.copy(self.settings.left_shoulder))
+        self.right_shoulder = self.settings.scale_image(copy.copy(self.settings.right_shoulder))
         self.settings.display.fill(self.settings.gray)
         instructions = self.settings.font_medium.render(f"Rescue {self.settings.rescue} hitchhikers before {self.settings.squish} get{'s' if self.settings.squish == 1 else ''} squished", True, self.settings.black)
         self.settings.display.blit(instructions, ( int(self.settings.screen_width / 2) - 400, int(self.settings.screen_height / 2) - 80) )
@@ -111,12 +115,12 @@ class Game:
 
     def scroll_pavement(self):
         self.settings.display.fill(self.settings.gray)
-        self.settings.display.blit(self.settings.left_shoulder, (0 + self.settings.margin, 0))
+        self.settings.display.blit(self.left_shoulder, (0 + self.settings.margin, 0))
         self.settings.display.blit(self.settings.background, (self.settings.left_edge, self.bg_placement))
         self.bg_placement += int(self.settings.speed / 2)
         if self.bg_placement > 0:
             self.bg_placement = self.settings.tile_height * -1
-        self.settings.display.blit(self.settings.right_shoulder, (self.settings.right_edge, 0))
+        self.settings.display.blit(self.right_shoulder, (self.settings.right_edge, 0))
 
     def move_all_sprites(self, move):
         print(f'move: {move}')

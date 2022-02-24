@@ -9,11 +9,12 @@ class Hitchhiker(pygame.sprite.Sprite):
         self.settings: Settings = settings
         self.id = random.choice([1,2,3,4,5,6])
         self.image = self.settings.pg.image.load(self.settings.get_path('images', f'hitchhiker{self.id}.png'))
+        self.image = self.settings.scale_image(self.image)
         self.rect = self.image.get_rect()
         sides = []
         left = self.settings.margin + int(self.settings.left_shoulder_width / 2)
         sides.append(left)
-        right = self.settings.margin + self.settings.left_shoulder_width + self.settings.lanes_width + int(self.settings.right_shoulder_width / 2)
+        right = self.settings.margin + int(self.settings.left_shoulder_width + self.settings.lanes_width + int(self.settings.right_shoulder_width / 2))
         sides.append(right)
         side = random.choice(sides)
         if side == left:
