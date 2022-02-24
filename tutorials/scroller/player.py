@@ -26,6 +26,7 @@ class Player(pygame.sprite.Sprite):
         self.turning = None
 
     def move(self, move: str=''):
+        speed = self.settings.scale(self.settings.speed)
         pressed_keys = self.settings.pg.key.get_pressed()
         half_width = int(self.image.get_width() / 2)
         pressed_left = move == 'left' or pressed_keys[self.settings.pg.K_LEFT] or pressed_keys[self.settings.pg.K_a]
@@ -43,40 +44,40 @@ class Player(pygame.sprite.Sprite):
                 if not self.boosting:
                     self.recharge = 180
                     self.boosting = True
-                if self.boost < self.settings.speed:
+                if self.boost < speed:
                     if self.boost == 0:
                         self.settings.pg.mixer.Sound(self.settings.get_path('sounds', 'boost.wav')).play()
-                    self.boost += int(self.settings.speed / 5)
+                    self.boost += int(speed / 5)
                 else:
                     self.boosting = False
             move = 'up'
 
         elif down:
-            y_change = int(self.settings.speed / 2)
+            y_change = int(speed / 2)
             move = 'down'
 
         if left:
             if self.angle < self.settings.turn_radius:
-                self.angle += int(self.settings.speed / 5) * 2
+                self.angle += int(speed / 5) * 2
 
         elif right:
             if self.angle > -self.settings.turn_radius:
-                self.angle -= int(self.settings.speed / 5) * 2
+                self.angle -= int(speed / 5) * 2
 
         if self.angle != 0:
             self.turning = 'right' if self.angle > -self.settings.turn_radius else 'left'
-            x_change = int((self.settings.speed + self.boost) / 3 * (self.angle / self.settings.turn_radius * -1))
+            x_change = int((speed + self.boost) / 3 * (self.angle / self.settings.turn_radius * -1))
             self.set_rotation()
 
         if self.boost > 0:
             y_change -= self.boost
             if not up:
-                self.boost -= int(self.settings.speed / 5)
+                self.boost -= int(speed / 5)
         elif not_bottom:
-            y_change += int(self.settings.speed / 5)
+            y_change += int(speed / 5)
 
         if self.recharge > 0:
-            self.recharge -= int(self.settings.speed / 5)
+            self.recharge -= int(speed / 5)
 
         if self.left + x_change < self.settings.margin + self.settings.left_shoulder_width:
             x_change = self.left - (self.settings.margin + self.settings.left_shoulder_width)
@@ -88,7 +89,7 @@ class Player(pygame.sprite.Sprite):
         if not up and not down and not left and not right:
             move = ''
             if self.angle != 0 and self.angle <=self.settings.turn_radius and self.angle >= -self.settings.turn_radius:
-                self.angle += -int(self.settings.speed / 5) * 2 if self.angle > 0 else int(self.settings.speed / 5) * 2
+                self.angle += -int(speed / 5) * 2 if self.angle > 0 else int(speed / 5) * 2
                 self.set_rotation()
         return move
 

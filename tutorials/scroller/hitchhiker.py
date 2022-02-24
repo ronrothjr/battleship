@@ -23,7 +23,8 @@ class Hitchhiker(pygame.sprite.Sprite):
         self.mask = self.settings.pg.mask.from_surface(self.image)
         
     def move(self):
-        self.rect.move_ip(0, int(self.settings.speed / 2))
+        speed = self.settings.scale(self.settings.speed)
+        self.rect.move_ip(0, int(speed / 2))
         if (self.rect.bottom > self.settings.screen_height + self.image.get_height()):
             self.kill()
 
