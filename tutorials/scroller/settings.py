@@ -70,6 +70,11 @@ class Settings:
             x_cursor = 0
         return tiled_image
 
+    def get_scale(self):
+        original = self.shoulder_width + self.tile_width * self.lanes
+        scale = self.screen_width - 120 / original
+        return scale
+
     def set_game_difficulty(self, level):
         self.speed = level['speed']
         self.lanes = level['lanes']
