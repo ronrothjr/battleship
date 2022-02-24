@@ -22,12 +22,12 @@ class Settings:
         self.screen_height = self.info.current_h
 
         self.levels = [
-            {'level': 1, 'speed': 5, 'max': 8, 'lanes': 2, 'rescue': 4, 'squish': 1},
-            {'level': 2, 'speed': 5, 'max': 8, 'lanes': 3, 'rescue': 5, 'squish': 2},
-            {'level': 3, 'speed': 5, 'max': 9, 'lanes': 4, 'rescue': 7, 'squish': 3},
-            {'level': 4, 'speed': 6, 'max': 9, 'lanes': 5, 'rescue': 10, 'squish': 4},
-            {'level': 5, 'speed': 6, 'max': 10, 'lanes': 6, 'rescue': 12, 'squish': 5},
-            {'level': 6, 'speed': 6, 'max': 10, 'lanes': 7, 'rescue': 15, 'squish': 6}
+            {'level': 1, 'speed': 5, 'max': 7, 'lanes': 2, 'rescue': 4, 'squish': 1},
+            {'level': 2, 'speed': 5, 'max': 7, 'lanes': 3, 'rescue': 5, 'squish': 2},
+            {'level': 3, 'speed': 6, 'max': 8, 'lanes': 4, 'rescue': 7, 'squish': 3},
+            {'level': 4, 'speed': 6, 'max': 8, 'lanes': 5, 'rescue': 10, 'squish': 4},
+            {'level': 5, 'speed': 7, 'max': 9, 'lanes': 6, 'rescue': 12, 'squish': 5},
+            {'level': 6, 'speed': 7, 'max': 9, 'lanes': 7, 'rescue': 15, 'squish': 6}
         ]
         self.left_shoulder_width = 41
         self.right_shoulder_width = 45
@@ -37,9 +37,9 @@ class Settings:
         self.tile_height = 164
         self.turn_radius = 30
         self.fps = 60
-        self.spawn_enemy = 10000
-        self.inc_speed = 15000
-        self.spawn_hitchhiker = 5000
+        self.spawn_enemy = 6000
+        self.inc_speed = 12000
+        self.spawn_hitchhiker = 3000
 
         self.display = self.pg.display.set_mode((self.screen_width, self.screen_height), pg.FULLSCREEN | pg.RESIZABLE)
         self.display.fill(self.white)

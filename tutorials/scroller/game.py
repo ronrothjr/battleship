@@ -12,10 +12,6 @@ class Game:
         self.on_init()
 
     def on_init(self):
-        now = self.settings.pg.time.get_ticks()
-        self.last_spawn_enemy = now
-        self.last_inc_speed = now
-        self.last_spawn_hitchhiker = now
         self.bg_placement = self.settings.tile_height * -1
         self.settings.pg.mouse.set_pos((int(self.settings.screen_width * 0.5), int(self.settings.screen_height * 0.8)))
 
@@ -26,19 +22,27 @@ class Game:
         self.settings.display.blit(instructions, ( int(self.settings.screen_width / 2) - 400, int(self.settings.screen_height / 2) - 80) )
         self.settings.pg.display.update()
         time.sleep(2)
-        self.settings.pg.mixer.Sound(self.settings.get_path('sounds', 'traffic.wav')).play()
+        self.settings.pg.mixer.stop()
+        self.traffic = self.settings.pg.mixer.Sound(self.settings.get_path('sounds', 'traffic.wav'))
+        self.traffic.play(fade_ms=5000)
         self.P1 = Player(self.settings)
         self.settings.all_sprites.add(self.P1)
+        now = self.settings.pg.time.get_ticks()
+        self.last_spawn_enemy = now
+        self.last_inc_speed = now
+        self.last_spawn_hitchhiker = now
 
     def on_pause(self, now):
         self.last_spawn_enemy = now - self.last_spawn_enemy
         self.last_inc_speed = now - self.last_inc_speed
         self.last_spawn_hitchhiker = now - self.last_spawn_hitchhiker
+        self.settings.pg.mixer.pause()
 
     def on_unpause(self, now):
         self.last_spawn_enemy = now - self.last_spawn_enemy
         self.last_inc_speed = now - self.last_inc_speed
         self.last_spawn_hitchhiker = now - self.last_spawn_hitchhiker
+        self.settings.pg.mixer.unpause()
 
     def on_loop(self, now, move):
         alive = True
@@ -163,36 +167,31 @@ class Game:
 
     def handle_crash(self):
         self.settings.pg.mixer.Sound(self.settings.get_path('sounds', 'crash.wav')).play()
-        time.sleep(0.5)
-        self.settings.display.fill(self.settings.red)
-        self.settings.display.blit(self.settings.game_over, ( int(self.settings.screen_width / 2) - 150, int(self.settings.screen_height / 2) - 80) )
-        self.settings.pg.display.update()
-        for entity in self.settings.all_sprites:
-            entity.kill() 
-        time.sleep(3)
+        pos = ( int(self.settings.screen_width / 2) - 150, int(self.settings.screen_height / 2) - 80)
+        self.display_kill_and_fade(self.settings.red, self.settings.game_over, pos)
 
     def squished(self):
         return self.settings.squished >= self.settings.squish
 
     def handle_squished(self):
-        time.sleep(0.5)
-        self.settings.display.fill(self.settings.red)
         got_squished = self.settings.font_medium.render(f"{self.settings.squished} hitchhiker{'' if self.settings.squished == 1 else 's'} got squished :(", True, self.settings.black)
-        self.settings.display.blit(got_squished, ( int(self.settings.screen_width / 2) - 150, int(self.settings.screen_height / 2) - 80) )
-        self.settings.pg.display.update()
-        for entity in self.settings.all_sprites:
-            entity.kill()
-        time.sleep(2)
+        pos = ( int(self.settings.screen_width / 2) - 200, int(self.settings.screen_height / 2) - 80)
+        self.display_kill_and_fade(self.settings.red, got_squished, pos)
 
     def level_up(self):
         return self.settings.rescued >= self.settings.rescue
 
     def handle_level_up(self):
+        pos = ( int(self.settings.screen_width / 2) - 150, int(self.settings.screen_height / 2) - 80)
+        self.display_kill_and_fade(self.settings.green, self.settings.level_up, pos)
+
+    def display_kill_and_fade(self, color: tuple, surface, pos: tuple):
         time.sleep(0.5)
-        self.settings.display.fill(self.settings.green)
-        self.settings.display.blit(self.settings.level_up, ( int(self.settings.screen_width / 2) - 150, int(self.settings.screen_height / 2) - 80) )
+        self.settings.display.fill(color)
+        self.settings.display.blit(surface, pos)
         self.settings.pg.display.update()
         for entity in self.settings.all_sprites:
             entity.kill()
-        time.sleep(2)
+        self.traffic.fadeout(2500)
+        time.sleep(3)
 
