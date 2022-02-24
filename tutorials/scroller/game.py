@@ -123,7 +123,6 @@ class Game:
         self.settings.display.blit(self.right_shoulder, (self.settings.right_edge, 0))
 
     def move_all_sprites(self, move):
-        print(f'move: {move}')
         for entity in self.settings.all_sprites:
               self.settings.display.blit(entity.image, entity.rect)
               if entity == self.P1:
