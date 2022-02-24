@@ -23,12 +23,11 @@ class Settings:
         self.is_portrait = self.screen_height > self.screen_width
 
         self.levels = [
-            {'level': 1, 'speed': 5, 'max': 7, 'lanes': 2, 'rescue': 4, 'squish': 1},
-            {'level': 2, 'speed': 5, 'max': 7, 'lanes': 3, 'rescue': 5, 'squish': 2},
-            {'level': 3, 'speed': 6, 'max': 8, 'lanes': 4, 'rescue': 7, 'squish': 3},
-            {'level': 4, 'speed': 6, 'max': 8, 'lanes': 5, 'rescue': 10, 'squish': 4},
-            {'level': 5, 'speed': 7, 'max': 9, 'lanes': 6, 'rescue': 12, 'squish': 5},
-            {'level': 6, 'speed': 7, 'max': 9, 'lanes': 7, 'rescue': 15, 'squish': 6}
+            {'level': 1, 'speed': 5, 'max': 7, 'lanes': 3, 'rescue': 4, 'squish': 1},
+            {'level': 2, 'speed': 5, 'max': 7, 'lanes': 4, 'rescue': 5, 'squish': 2},
+            {'level': 3, 'speed': 6, 'max': 8, 'lanes': 5, 'rescue': 7, 'squish': 3},
+            {'level': 4, 'speed': 6, 'max': 8, 'lanes': 6, 'rescue': 10, 'squish': 4},
+            {'level': 5, 'speed': 7, 'max': 9, 'lanes': 7, 'rescue': 12, 'squish': 5}
         ]
         self.original_left_shoulder_width = 41
         self.left_shoulder_width = 41
@@ -44,9 +43,9 @@ class Settings:
         self.tile_height = 164
         self.turn_radius = 30
         self.fps = 60
-        self.spawn_enemy = 6000
+        self.spawn_enemy = 7000
         self.inc_speed = 12000
-        self.spawn_hitchhiker = 3000
+        self.spawn_hitchhiker = 4000
 
         self.display = self.pg.display.set_mode((self.screen_width, self.screen_height), pg.FULLSCREEN | pg.RESIZABLE)
         self.display.fill(self.white)
@@ -80,7 +79,7 @@ class Settings:
 
     def scale(self, x: int):
         original = self.original_shoulder_width + (self.original_tile_width * self.lanes) - self.original_line_width
-        scale = (self.screen_width - 120) / original if self.is_portrait else 1
+        scale = (self.screen_width - 200) / original if self.is_portrait else 1
         return int( x * scale )
 
     def scale_image(self, i):
@@ -101,9 +100,9 @@ class Settings:
         self.rescued = 0
         self.squished = 0
         self.lanes_width = self.lanes * self.tile_width - self.line_width
-        self.margin = 60 if self.is_portrait else int( ( self.screen_width - self.shoulder_width - self.lanes_width ) / 2 )
+        self.margin = 100 if self.is_portrait else int( ( self.screen_width - self.shoulder_width - self.lanes_width ) / 2 )
         self.left_edge = self.margin + self.left_shoulder_width
-        self.right_edge = self.screen_width - self.margin - self.right_shoulder_width
+        self.right_edge = self.left_edge + self.lanes_width
         self.max_enemies = int(self.lanes * 0.6)
         self.speed_inc = (0.5) / self.max_enemies
         self.enemy_speeds = [0.65 + (x * self.speed_inc * 0.5) for x in range(0, self.max_enemies)]

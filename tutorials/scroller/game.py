@@ -117,7 +117,7 @@ class Game:
         self.settings.display.fill(self.settings.gray)
         self.settings.display.blit(self.left_shoulder, (0 + self.settings.margin, 0))
         self.settings.display.blit(self.settings.background, (self.settings.left_edge, self.bg_placement))
-        self.bg_placement += int(self.settings.speed / 2)
+        self.bg_placement += self.settings.scale(int(self.settings.speed / 2))
         if self.bg_placement > 0:
             self.bg_placement = self.settings.tile_height * -1
         self.settings.display.blit(self.right_shoulder, (self.settings.right_edge, 0))

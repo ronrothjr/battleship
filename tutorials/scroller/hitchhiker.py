@@ -14,7 +14,7 @@ class Hitchhiker(pygame.sprite.Sprite):
         sides = []
         left = self.settings.margin + int(self.settings.left_shoulder_width / 2)
         sides.append(left)
-        right = self.settings.margin + int(self.settings.left_shoulder_width + self.settings.lanes_width + int(self.settings.right_shoulder_width / 2))
+        right = self.settings.margin + self.settings.left_shoulder_width + self.settings.lanes_width + int(self.settings.right_shoulder_width / 2)
         sides.append(right)
         side = random.choice(sides)
         if side == left:

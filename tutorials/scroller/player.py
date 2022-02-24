@@ -13,6 +13,8 @@ class Player(pygame.sprite.Sprite):
         self.settings: Settings = settings
         self.image = self.settings.pg.image.load(self.settings.get_path('images', "player.png"))
         self.image = self.settings.scale_image(self.image)
+        self.width = self.image.get_width()
+        self.half_width = int(self.width / 2)
         self.original_image = copy.copy(self.image)
         self.rect = self.image.get_rect()
         self.rect.center = (int(self.settings.screen_width / 2), int(self.settings.screen_height * 0.8))
@@ -23,19 +25,18 @@ class Player(pygame.sprite.Sprite):
         self.left = self.rect.topleft[0]
         self.top = self.rect.topleft[1]
         self.mask = self.settings.pg.mask.from_surface(self.image)
-        self.turning = None
 
     def move(self, move: str=''):
         speed = self.settings.scale(self.settings.speed)
         pressed_keys = self.settings.pg.key.get_pressed()
-        half_width = int(self.image.get_width() / 2)
         pressed_left = move == 'left' or pressed_keys[self.settings.pg.K_LEFT] or pressed_keys[self.settings.pg.K_a]
         pressed_right = move == 'right' or pressed_keys[self.settings.pg.K_RIGHT] or pressed_keys[self.settings.pg.K_d]
         up = self.rect.topleft[1] > self.settings.screen_height * 0.55 and (move == 'boost' or pressed_keys[self.settings.pg.K_UP] or pressed_keys[self.settings.pg.K_w])
         not_bottom = self.rect.bottomright[1] < self.settings.screen_height * 0.8 + int( self.rect.height / 2 )
         down = not_bottom and (pressed_keys[self.settings.pg.K_SPACE])
-        left = pressed_left and self.rect.left + half_width > self.settings.left_edge
-        right = pressed_right and self.rect.right - half_width < self.settings.right_edge - self.settings.right_shoulder_width
+        center = self.rect.centerx
+        left = pressed_left and center > self.settings.left_edge
+        right = pressed_right and center < self.settings.right_edge
         x_change = 0
         y_change = 0
 
@@ -65,8 +66,8 @@ class Player(pygame.sprite.Sprite):
                 self.angle -= int(speed / 5) * 2
 
         if self.angle != 0:
-            self.turning = 'right' if self.angle > -self.settings.turn_radius else 'left'
-            x_change = int((speed + self.boost) / 3 * (self.angle / self.settings.turn_radius * -1))
+            boost = self.settings.scale(self.boost)
+            x_change = int((speed + boost) / 3 * (self.angle / self.settings.turn_radius * -1))
             self.set_rotation()
 
         if self.boost > 0:
@@ -77,18 +78,20 @@ class Player(pygame.sprite.Sprite):
             y_change += int(speed / 5)
 
         if self.recharge > 0:
-            self.recharge -= int(speed / 5)
+            self.recharge -= int(self.settings.speed / 5)
 
-        if self.left + x_change < self.settings.margin + self.settings.left_shoulder_width:
-            x_change = self.left - (self.settings.margin + self.settings.left_shoulder_width)
-        if self.left + self.rect.width + x_change > self.settings.screen_width - self.settings.right_shoulder_width:
-            x_change = (self.settings.screen_width - self.settings.right_shoulder_width) - (self.left + self.rect.width)
+        is_too_far_left = self.left + x_change < self.settings.left_edge
+        is_too_far_right = self.left + x_change + self.width > self.settings.right_edge
+        if is_too_far_left:
+            x_change = self.left - self.settings.left_edge
+        if is_too_far_right:
+            x_change = self.settings.right_edge - (self.left + self.width)
+        self.rect.move_ip(x_change, y_change)
         self.left += x_change
         self.top += y_change
-        self.rect.move_ip(x_change, y_change)
         if not up and not down and not left and not right:
             move = ''
-            if self.angle != 0 and self.angle <=self.settings.turn_radius and self.angle >= -self.settings.turn_radius:
+            if self.angle != 0:
                 self.angle += -int(speed / 5) * 2 if self.angle > 0 else int(speed / 5) * 2
                 self.set_rotation()
         return move
