@@ -92,20 +92,12 @@ class Settings:
         self.rescue = level['rescue']
         self.squish = level['squish']
         self.max_speed = level['max']
-        print(f'level: {level}')
-        print(f'scale: {self.scale(1)}')
         self.left_shoulder_width = self.scale(self.original_left_shoulder_width)
         self.right_shoulder_width = self.scale(self.original_right_shoulder_width)
         self.line_width = self.scale(self.original_line_width)
         self.shoulder_width = self.scale(self.original_shoulder_width)
         self.tile_width = self.scale(self.original_tile_width)
         self.tile_height = self.scale(self.original_tile_height)
-        print(f'left_shoulder_width: {self.left_shoulder_width}')
-        print(f'right_shoulder_width: {self.right_shoulder_width}')
-        print(f'line_width: {self.line_width}')
-        print(f'shoulder_width: {self.shoulder_width}')
-        print(f'tile_width: {self.tile_width}')
-        print(f'tile_height: {self.tile_height}')
         self.rescued = 0
         self.squished = 0
         self.lanes_width = self.lanes * self.tile_width - self.line_width
