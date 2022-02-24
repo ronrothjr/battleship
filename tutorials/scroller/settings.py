@@ -20,6 +20,7 @@ class Settings:
         self.info = self.pg.display.Info()
         self.screen_width = self.info.current_w
         self.screen_height = self.info.current_h
+        self.is_portrait = self.screen_height > self.screen_width
 
         self.levels = [
             {'level': 1, 'speed': 5, 'max': 7, 'lanes': 2, 'rescue': 4, 'squish': 1},
@@ -78,8 +79,8 @@ class Settings:
         return tiled_image
 
     def scale(self, x: int):
-        original = self.original_shoulder_width + (self.original_tile_width * self.lanes)
-        scale = 1 if self.screen_height < self.screen_width else (self.screen_width - 120) / original
+        original = self.original_shoulder_width + (self.original_tile_width * self.lanes) - self.original_line_width
+        scale = (self.screen_width - 120) / original if self.is_portrait else 1
         return int( x * scale )
 
     def scale_image(self, i):
@@ -108,7 +109,7 @@ class Settings:
         self.rescued = 0
         self.squished = 0
         self.lanes_width = self.lanes * self.tile_width - self.line_width
-        self.margin = 60 if self.screen_height > self.screen_width else int( ( self.screen_width - self.shoulder_width - self.lanes_width ) / 2 )
+        self.margin = 60 if self.is_portrait else int( ( self.screen_width - self.shoulder_width - self.lanes_width ) / 2 )
         self.left_edge = self.margin + self.left_shoulder_width
         self.right_edge = self.screen_width - self.margin - self.right_shoulder_width
         self.max_enemies = int(self.lanes * 0.6)
