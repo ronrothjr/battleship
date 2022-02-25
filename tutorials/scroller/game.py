@@ -163,8 +163,8 @@ class Game:
 
         rect = self.settings.pg.Rect(int(self.settings.screen_width * 0.14), self.settings.screen_height * 0.83, int(self.settings.screen_width * 0.16), 130)
         self.draw_rect_alpha(self.settings.display, self.settings.black, rect, 96, 10)
-        boost_left = self.settings.font.render('boost |', True, self.settings.black)
-        self.settings.display.blit(boost_left, (int(self.settings.screen_width * 0.15), self.settings.screen_height * 0.85))
+        boost_left = self.settings.font.render('boost', True, self.settings.black)
+        self.settings.display.blit(boost_left, (int(self.settings.screen_width * 0.16), self.settings.screen_height * 0.85))
 
         rect = self.settings.pg.Rect(int(self.settings.screen_width * 0.36), self.settings.screen_height * 0.83, int(self.settings.screen_width * 0.09), 130)
         self.draw_rect_alpha(self.settings.display, self.settings.black, rect, 96, 10)
@@ -178,8 +178,8 @@ class Game:
 
         rect = self.settings.pg.Rect(int(self.settings.screen_width * 0.70), self.settings.screen_height * 0.83, int(self.settings.screen_width * 0.16), 130)
         self.draw_rect_alpha(self.settings.display, self.settings.black, rect, 96, 10)
-        boost_right = self.settings.font.render('| boost', True, self.settings.black)
-        self.settings.display.blit(boost_right, (int(self.settings.screen_width * 0.71), self.settings.screen_height * 0.85))
+        boost_right = self.settings.font.render('boost', True, self.settings.black)
+        self.settings.display.blit(boost_right, (int(self.settings.screen_width * 0.73), self.settings.screen_height * 0.85))
 
     def squish_hitchhikers(self):
         for e in self.settings.enemies:
