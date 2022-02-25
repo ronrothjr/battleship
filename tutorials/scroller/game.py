@@ -152,13 +152,13 @@ class Game:
         rescued = self.settings.font.render(f'{str(self.settings.rescued)}', True, self.settings.black)
         self.settings.display.blit(rescued, (int(self.settings.screen_width * 0.41),60))
         count = self.settings.font_medium.render('enemies', True, self.settings.black)
-        self.settings.display.blit(count, (int(self.settings.screen_width * 0.52),20))
+        self.settings.display.blit(count, (int(self.settings.screen_width * 0.53),20))
         enemies = self.settings.font.render(f'{str(self.settings.enemies.__len__())}', True, self.settings.black)
-        self.settings.display.blit(enemies, (int(self.settings.screen_width * 0.56),60))
+        self.settings.display.blit(enemies, (int(self.settings.screen_width * 0.57),60))
         squished = self.settings.font_medium.render('squished', True, self.settings.black)
-        self.settings.display.blit(squished, (int(self.settings.screen_width * 0.66),20))
+        self.settings.display.blit(squished, (int(self.settings.screen_width * 0.68),20))
         squish_count = self.settings.font.render(f'{str(self.settings.squished)}', True, self.settings.black)
-        self.settings.display.blit(squish_count, (int(self.settings.screen_width * 0.70),60))
+        self.settings.display.blit(squish_count, (int(self.settings.screen_width * 0.72),60))
 
 
         rect = self.settings.pg.Rect(int(self.settings.screen_width * 0.14), self.settings.screen_height * 0.83, int(self.settings.screen_width * 0.16), 130)
