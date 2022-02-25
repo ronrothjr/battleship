@@ -144,9 +144,9 @@ class Game:
         self.draw_rect_alpha(self.settings.display, self.settings.white, rect, 96, 10)
 
         mph = self.settings.font_medium.render('mph', True, self.settings.black)
-        self.settings.display.blit(mph, (int(self.settings.screen_width * 0.23),20))
+        self.settings.display.blit(mph, (int(self.settings.screen_width * 0.21),20))
         speed = self.settings.font.render(f'{str((self.settings.speed + self.P1.boost) * 4)}', True, self.settings.black)
-        self.settings.display.blit(speed, (int(self.settings.screen_width * 0.23),60))
+        self.settings.display.blit(speed, (int(self.settings.screen_width * 0.21),60))
         scores = self.settings.font_medium.render('rescued', True, self.settings.black)
         self.settings.display.blit(scores, (int(self.settings.screen_width * 0.37),20))
         rescued = self.settings.font.render(f'{str(self.settings.rescued)}', True, self.settings.black)
