@@ -1,4 +1,6 @@
 import time, copy
+
+from pygame import SRCALPHA
 from player import Player
 from hitchhiker import Hitchhiker
 from enemy import Enemy
@@ -131,31 +133,53 @@ class Game:
                     entity.move()
         return move
 
+    def draw_rect_alpha(self, surface, color, rect, alpha, radius):
+        shape_surf = self.settings.pg.Surface(self.settings.pg.Rect(rect).size, self.settings.pg.SRCALPHA)
+        shape_surf.set_alpha(alpha)
+        self.settings.pg.draw.rect(shape_surf, color, shape_surf.get_rect(), 0, radius)
+        surface.blit(shape_surf, rect)
+
     def display_info(self):
+        rect = self.settings.pg.Rect(int(self.settings.screen_width * 0.12), -10, int(self.settings.screen_width * 0.75), 150)
+        self.draw_rect_alpha(self.settings.display, self.settings.white, rect, 96, 10)
+
         mph = self.settings.font_medium.render('mph', True, self.settings.black)
-        self.settings.display.blit(mph, (int(self.settings.screen_width * 0.12),20))
+        self.settings.display.blit(mph, (int(self.settings.screen_width * 0.23),20))
         speed = self.settings.font.render(f'{str((self.settings.speed + self.P1.boost) * 4)}', True, self.settings.black)
-        self.settings.display.blit(speed, (int(self.settings.screen_width * 0.12),60))
+        self.settings.display.blit(speed, (int(self.settings.screen_width * 0.23),60))
         scores = self.settings.font_medium.render('rescued', True, self.settings.black)
-        self.settings.display.blit(scores, (int(self.settings.screen_width * 0.28),20))
+        self.settings.display.blit(scores, (int(self.settings.screen_width * 0.37),20))
         rescued = self.settings.font.render(f'{str(self.settings.rescued)}', True, self.settings.black)
-        self.settings.display.blit(rescued, (int(self.settings.screen_width * 0.33),60))
+        self.settings.display.blit(rescued, (int(self.settings.screen_width * 0.41),60))
         count = self.settings.font_medium.render('enemies', True, self.settings.black)
-        self.settings.display.blit(count, (int(self.settings.screen_width * 0.5),20))
+        self.settings.display.blit(count, (int(self.settings.screen_width * 0.52),20))
         enemies = self.settings.font.render(f'{str(self.settings.enemies.__len__())}', True, self.settings.black)
-        self.settings.display.blit(enemies, (int(self.settings.screen_width * 0.55),60))
+        self.settings.display.blit(enemies, (int(self.settings.screen_width * 0.56),60))
         squished = self.settings.font_medium.render('squished', True, self.settings.black)
-        self.settings.display.blit(squished, (int(self.settings.screen_width * 0.70),20))
+        self.settings.display.blit(squished, (int(self.settings.screen_width * 0.66),20))
         squish_count = self.settings.font.render(f'{str(self.settings.squished)}', True, self.settings.black)
-        self.settings.display.blit(squish_count, (int(self.settings.screen_width * 0.78),60))
+        self.settings.display.blit(squish_count, (int(self.settings.screen_width * 0.70),60))
+
+
+        rect = self.settings.pg.Rect(int(self.settings.screen_width * 0.14), self.settings.screen_height * 0.83, int(self.settings.screen_width * 0.16), 130)
+        self.draw_rect_alpha(self.settings.display, self.settings.black, rect, 96, 10)
         boost_left = self.settings.font.render('boost |', True, self.settings.black)
         self.settings.display.blit(boost_left, (int(self.settings.screen_width * 0.15), self.settings.screen_height * 0.85))
+
+        rect = self.settings.pg.Rect(int(self.settings.screen_width * 0.36), self.settings.screen_height * 0.83, int(self.settings.screen_width * 0.09), 130)
+        self.draw_rect_alpha(self.settings.display, self.settings.black, rect, 96, 10)
         left = self.settings.font.render('<', True, self.settings.black)
         self.settings.display.blit(left, (int(self.settings.screen_width * 0.40), self.settings.screen_height * 0.85))
+
+        rect = self.settings.pg.Rect(int(self.settings.screen_width * 0.55), self.settings.screen_height * 0.83, int(self.settings.screen_width * 0.09), 130)
+        self.draw_rect_alpha(self.settings.display, self.settings.black, rect, 96, 10)
         right = self.settings.font.render('>', True, self.settings.black)
         self.settings.display.blit(right, (int(self.settings.screen_width * 0.57), self.settings.screen_height * 0.85))
+
+        rect = self.settings.pg.Rect(int(self.settings.screen_width * 0.70), self.settings.screen_height * 0.83, int(self.settings.screen_width * 0.16), 130)
+        self.draw_rect_alpha(self.settings.display, self.settings.black, rect, 96, 10)
         boost_right = self.settings.font.render('| boost', True, self.settings.black)
-        self.settings.display.blit(boost_right, (int(self.settings.screen_width * 0.70), self.settings.screen_height * 0.85))
+        self.settings.display.blit(boost_right, (int(self.settings.screen_width * 0.71), self.settings.screen_height * 0.85))
 
     def squish_hitchhikers(self):
         for e in self.settings.enemies:
